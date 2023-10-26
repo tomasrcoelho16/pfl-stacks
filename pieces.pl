@@ -2,16 +2,13 @@
 % Example: red(2) represents a stack of 2 red pieces.
 % empty represents an empty cell.
 
-yo_bro:-
-    write('TOMASTOMASTOMAS').
-
 initial_state([
-    [empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty],
     [red(2), red(2), red(2), red(2), red(2)],
+    [empty, empty, empty, empty, empty],
+    [empty, empty, empty, empty, empty],
+    [empty, empty, empty, empty, empty],
+    [empty, empty, empty, empty, empty],
+    [empty, empty, empty, empty, empty],
     [black(2), black(2), black(2), black(2), black(2)]
 ]).
 
@@ -23,10 +20,10 @@ display_board(Board) :-
     display_rows(Board, 1).
 
 display_columns :-
-    write('   A   B   C   D   E\n').
+    write('     A    B    C    D    E\n').
 
 display_separator :-
-    write('  -------------------\n').
+    write('  --------------------------\n').
 
 display_rows([], 6).
 display_rows([Row | Rest], RowNumber) :-
@@ -38,18 +35,19 @@ display_rows([Row | Rest], RowNumber) :-
     NextRowNumber is RowNumber + 1,
     display_rows(Rest, NextRowNumber).
 
-display_row([]).
+display_row([]) :- 
+    write('|').
 display_row([Cell | Rest]) :-
     write('| '),
     display_cell(Cell),
     display_row(Rest).
 
 display_cell(empty) :-
-    write(' ').
+    write('   ').
 display_cell(red(N)) :-
-    format('R~d', [N]).
+    format('R~d ', [N]).
 display_cell(black(N)) :-
-    format('B~d', [N]).
+    format('B~d ', [N]).
 
 
 

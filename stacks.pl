@@ -1,9 +1,9 @@
 % Load the predicates from pieces.pl
-
+:- use_module(library(lists)).
+:- consult(pieces).
 
 % Define the main predicate to start the game.
 play :-
-    consult('pieces.pl'),
     display_menu,
     get_menu_option(Option),
     handle_menu_option(Option).
@@ -35,11 +35,10 @@ handle_menu_option(_) :- % Handle invalid input
 start_human_vs_human_game :-
     % Initialize the game board (modify this based on your game logic).
     write('yoo'),
-    yo_bro,
-    % initial_state(Board),
+    initial_state(Board),
 
     % Display the initial game board.
-    % display_board(Board),
+    display_board(Board),
 
     % Implement the game loop here.
     % Handle player moves, game rules, and so on.
