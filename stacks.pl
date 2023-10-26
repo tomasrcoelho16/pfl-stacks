@@ -33,18 +33,10 @@ handle_menu_option(_) :- % Handle invalid input
 
 % Define game modes as placeholders (you need to implement these).
 start_human_vs_human_game :-
-    % Initialize the game board (modify this based on your game logic).
     write('yoo'),
     initial_state(Board),
-
-    % Display the initial game board.
     display_board(Board),
-
-    % Implement the game loop here.
-    % Handle player moves, game rules, and so on.
-    % Display the updated game board in each iteration.
-
-    write('Human vs Human game logic goes here...\n').
+    write('teste').
 
 
 start_human_vs_bot_game :-
