@@ -16,7 +16,6 @@ initial_state([
 display_board(Board) :-
     nl,
     display_columns,
-    display_separator,
     display_rows(Board, 1),
     display_separator.
 
