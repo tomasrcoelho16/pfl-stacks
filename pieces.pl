@@ -55,8 +55,15 @@ display_cell(black(N)) :-
 % Choose move for a human player (select piece and destination)
 choose_move(GameState, Player, From-To) :-
     %display_board(GameState),
+    repeat,
     write('Select a piece (e.g., a1): '),
     read(FromInput),
+
+    nth1(FromRow, GameState, Row),
+    nth1(FromCol, Row, Piece),
+
+    ( (Player = black, Piece = black(_)) ;
+      (Player = red, Piece = red(_)) ),
 
     user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
     write('Select a destination (e.g., b2): '),
@@ -85,15 +92,9 @@ user_input_to_coordinates(UserInput, (Row, Col)) :-
 % Define a predicate to move a piece from one position to another.
 move(GameState, From-To, NewGameState) :-
     % Split the coordinates into separate components
-    %user_input_to_coordinates(From, (FromRow, FromCol)),
-    %user_input_to_coordinates(To, (ToRow, ToCol)),
 
     From = (FromRow, FromCol),
     To = (ToRow, ToCol),
-    write(FromRow), nl,
-    write(FromCol), nl,
-    write(ToRow), nl,
-    write(ToCol), nl,
 
     % Extract the piece from the source position
     nth1(FromRow, GameState, FromRowList),
