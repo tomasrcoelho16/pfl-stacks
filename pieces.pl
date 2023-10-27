@@ -5,7 +5,7 @@
 % empty represents an empty cell.
 
 initial_state([
-    [red(1), red(1), red(1), red(1), empty],
+    [red(2), red(2), red(2), red(2), red(2)],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
@@ -54,7 +54,7 @@ display_cell(black(N)) :-
 
 % Choose move for a human player (select piece and destination)
 choose_move(GameState, human, From-To) :-
-    display_board(GameState),
+    %display_board(GameState),
     write('Select a piece (e.g., a1): '),
     read(From),    % Read the coordinate of the piece to move
 
@@ -62,9 +62,6 @@ choose_move(GameState, human, From-To) :-
     read(To),      % Read the coordinate for the destination
 
     From-To = (From, To).
-
-
-
 
 % para o bot
 choose_move(GameState, computer-Level, Move):-
@@ -79,17 +76,34 @@ user_input_to_coordinates(UserInput, (Row, Col)) :-
     Col is ColCode - 64, % Convert ASCII value to column number (A=1, B=2, ...)
     number_chars(Row, [RowDigit]).
 
-% Move a piece from one column to another.
-move_piece([Row1|Rows], FromCol, ToCol, NewGameState) :-
-    valid_move(FromCol, ToCol),                                            %TO IMPLEMENT
-    select_stack(Row1, FromCol, Stack, RestRow),
-    piece_size(Stack, Size), % Get the size of the stack
-    % Update the stack size (if you are stacking or unstacking)
-    NewSize is Size - 1, % For unstacking
-    % NewSize is Size + 1, % For stacking
-    update_stack(Stack, NewSize, NewStack),
-    place_piece(RestRow, ToCol, NewStack, NewRow),                         %TO IMPLEMENT
-    append([NewRow], Rows, NewGameState).
+%MOVER A PUTA DAS PECAS
+
+move_piece(Board, NewBoard) :-
+    replace(Board, 1, 3, empty, TempBoard),
+    replace(TempBoard, 4, 3, red(2), NewBoard).
+
+replace(Board, Row, Column, Piece, NewBoard) :-
+    replace_row(Board, Row, Column, Piece, NewBoard).
+
+% Replace an element in a row
+replace_row([Row | Rest], 1, Column, Piece, [NewRow | Rest]) :-
+    replace_element(Row, Column, Piece, NewRow).
+
+replace_row([Row | Rest], RowNum, Column, Piece, [Row | NewRest]) :-
+    RowNum > 1,
+    NextRowNum is RowNum - 1,
+    replace_row(Rest, NextRowNum, Column, Piece, NewRest).
+
+% Replace an element in a list
+replace_element([_|Rest], 1, Piece, [Piece | Rest]).
+
+replace_element([X | Rest], Column, Piece, [X | NewRest]) :-
+    Column > 1,
+    NextColumn is Column - 1,
+    replace_element(Rest, NextColumn, Piece, NewRest).
+
+% AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
 
 % Select a stack from a row.
 select_stack(Row, Col, Stack, RestRow) :-
@@ -111,27 +125,3 @@ update_stack(black(Size), NewSize, NewStack) :- NewSize > 0, NewSize =< 4, NewSt
 
 piece_value(red(N), N).
 piece_value(black(N), N).
-
-replace(Board, Row, Column, Piece, NewBoard) :-
-    nth1(Row, Board, OldRow),
-    nth1(Column, OldRow, _, Rest),
-    nth1(Column, NewRow, Piece, Rest),
-    nth1(Row, NewBoard, NewRow, Board).
-
-valid_moves(GameState, Moves):-
-findall(Move, move(GameState, Move, NewState), Moves).
-
-sum_black_pieces_first_line(Board, Sum) :-
-    nth1(1, Board, FirstLine),
-    sum_black_pieces(FirstLine, Sum).
-
-% Sum a list of black pieces
-
-sum_black_pieces([], 0).
-sum_black_pieces([Piece|Rest], Total) :-
-    sum_black_pieces(Rest, RestTotal),
-    black_value(Piece, Value),
-    Total is RestTotal + Value.
-
-% Define the values of black pieces
-black_value(black(N), N).

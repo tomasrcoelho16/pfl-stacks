@@ -53,6 +53,7 @@ sum_black_pieces([Row | Rest], PartialSum, Sum) :-
 count_black_pieces_in_row([], 0).
 count_black_pieces_in_row([black(N) | Rest], RowSum) :-
     count_black_pieces_in_row(Rest, RestSum),
+    N is N = 3,
     RowSum is N + RestSum.
 count_black_pieces_in_row([_ | Rest], RowSum) :-
     count_black_pieces_in_row(Rest, RowSum).
@@ -102,7 +103,8 @@ start_human_vs_human_game :-
 
 start_human_vs_bot_game :-
     initial_state(Board),
-    replace(Board, 3,2, red(2), NewBoard),
+    display_board(Board),
+    move_piece(Board, NewBoard),
     display_board(NewBoard),
     write('Starting Human vs Bot game...\n').
 
@@ -133,15 +135,10 @@ game_cycle(GameState-Player):-
 
 
 game_over(GameState, Winner) :-
-    write('Checking conditions...'), nl,
     sum_red_pieces(GameState, SumRedTotal), !,
-    write('Sum of red pieces: '), write(SumRedTotal), nl,
     sum_black_pieces(GameState, SumBlackTotal), !,
-    write('Sum of black pieces: '), write(SumBlackTotal), nl,
     sum_red_pieces_on_row7(GameState, SumRed7), !,
-    write('Sum of red pieces on row 7: '), write(SumRed7), nl,
     sum_black_pieces_on_row1(GameState, SumBlack1), !,
-    write('Sum of black pieces on row 1: '), write(SumBlack1), nl,
 
     (   (SumRedTotal < 5, Winner = 'Black') ->
         write('Black Wins!'), nl
