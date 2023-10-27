@@ -22,7 +22,7 @@ display_board(Board) :-
     display_separator.
 
 display_columns :-
-    write('     A    B    C    D    E\n').
+    write('     a    b    c    d    e\n').
 
 display_separator :-
     write('  --------------------------\n').
@@ -57,7 +57,7 @@ choose_move(GameState, Player, From-To) :-
     %display_board(GameState),
     write('Select a piece (e.g., a1): '),
     read(FromInput),
-    
+
     user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
     write('Select a destination (e.g., b2): '),
     read(ToInput),      % Read the coordinate for the destination
@@ -77,7 +77,7 @@ choose_move(GameState, Player, From-To) :-
 user_input_to_coordinates(UserInput, (Row, Col)) :-
     atom_chars(UserInput, [ColChar, RowDigit]),
     char_code(ColChar, ColCode),
-    Col is ColCode - 64, % Convert ASCII value to column number (A=1, B=2, ...)
+    Col is ColCode - 96, % Convert ASCII value to column number (A=1, B=2, ...)
     number_chars(Row, [RowDigit]).
 
 %MOVER A PUTA DAS PECAS
