@@ -8,6 +8,61 @@ play :-
     get_menu_option(Option),
     handle_menu_option(Option).
 
+% Predicate to calculate the sum of red pieces on the board
+sum_red_pieces(Board, Sum) :-
+    sum_red_pieces(Board, 0, Sum).
+
+% Base case: when the board is empty, the sum is 0.
+sum_red_pieces([], Sum, Sum).
+
+% Recursive case: count the red pieces in each row and accumulate the sum.
+sum_red_pieces([Row | Rest], PartialSum, Sum) :-
+    count_red_pieces_in_row(Row, RowSum),
+    NewPartialSum is PartialSum + RowSum,
+    sum_red_pieces(Rest, NewPartialSum, Sum).
+
+% Predicate to count the red pieces in a row
+count_red_pieces_in_row([], 0).
+count_red_pieces_in_row([red(N) | Rest], RowSum) :-
+    count_red_pieces_in_row(Rest, RestSum),
+    RowSum is N + RestSum.
+count_red_pieces_in_row([_ | Rest], RowSum) :-
+    count_red_pieces_in_row(Rest, RowSum).
+
+% Predicate to calculate the sum of red pieces on row 7
+sum_red_pieces_on_row7(Board, Sum) :-
+    nth1(7, Board, Row7), % Get the 7th row
+    count_red_pieces_in_row(Row7, Sum).
+
+%FOR THE BLACKS!
+
+% Predicate to calculate the sum of red pieces on the board
+sum_black_pieces(Board, Sum) :-
+    sum_black_pieces(Board, 0, Sum).
+
+% Base case: when the board is empty, the sum is 0.
+sum_black_pieces([], Sum, Sum).
+
+% Recursive case: count the red pieces in each row and accumulate the sum.
+sum_black_pieces([Row | Rest], PartialSum, Sum) :-
+    count_black_pieces_in_row(Row, RowSum),
+    NewPartialSum is PartialSum + RowSum,
+    sum_black_pieces(Rest, NewPartialSum, Sum).
+
+% Predicate to count the red pieces in a row
+count_black_pieces_in_row([], 0).
+count_black_pieces_in_row([black(N) | Rest], RowSum) :-
+    count_black_pieces_in_row(Rest, RestSum),
+    RowSum is N + RestSum.
+count_black_pieces_in_row([_ | Rest], RowSum) :-
+    count_black_pieces_in_row(Rest, RowSum).
+
+% Predicate to calculate the sum of red pieces on row 7
+sum_black_pieces_on_row1(Board, Sum) :-
+    nth1(1, Board, Row1), % Get the 7th row
+    count_black_pieces_in_row(Row1, Sum).
+
+
 % Display the game menu.
 display_menu :-
     write('Welcome to Stacks!\n'),
@@ -36,7 +91,15 @@ start_human_vs_human_game :-
     write('yoo'),
     %play_game.
     initial_state(Board),
-    display_board(Board).
+    display_board(Board),
+    sum_red_pieces(Board, SumRed),
+    sum_black_pieces(Board, SumBlack),
+    sum_black_pieces_on_row1(Board, SumBlackRow1),
+    sum_red_pieces_on_row7(Board, SumRedRow7),
+    write(SumBlackRow1), nl,
+    write(SumRedRow7), nl,
+    write(SumBlack), nl,
+    write(SumRed).
     %sum_black_pieces_first_line(Board, Sum),
     %write(Sum),
     %write('teste'),

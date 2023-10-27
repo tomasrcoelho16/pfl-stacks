@@ -5,13 +5,13 @@
 % empty represents an empty cell.
 
 initial_state([
-    [black(2), black(1), red(2), red(2), red(2)],
+    [black(2), black(1), red(1), red(2), red(2)],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
-    [black(2), black(2), black(2), black(2), black(2)]
+    [black(2), black(2), red(2), black(2), red(4)]
 ]).
 
 % Define a predicate to display the game board.
