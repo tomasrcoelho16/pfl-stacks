@@ -5,7 +5,7 @@
 % empty represents an empty cell.
 
 initial_state([
-    [red(3), red(1), red(2), red(4), red(2)],
+    [red(3), black(1), red(2), red(4), red(2)],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
@@ -89,6 +89,10 @@ choose_move(GameState, Player, Move) :-
     read(NPiecesInput), 
 
     (NPiecesInput =< Val),
+
+    ((ToRow =\= 1, Player = black);
+     (ToRow =\= 7, Player = red)
+    ),
 
     calculate_possible(NPiecesInput, Possible),
     (abs(FromRow - ToRow) =< Possible, abs(FromCol - ToCol) =< Possible),
