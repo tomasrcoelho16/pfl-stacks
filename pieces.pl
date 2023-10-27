@@ -9,9 +9,9 @@ initial_state([
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty],
-    [black(1), black(2), black(3), black(2), black(2)]
+    [black(1), empty, empty, empty, empty],
+    [empty, black(1), black(1), black(1), empty],
+    [black(1), black(1), black(1), black(2), black(2)]
 ]).
 
 % Define a predicate to display the game board.
@@ -86,8 +86,7 @@ choose_move(GameState, Player, Move) :-
 
     user_input_to_coordinates(ToInput, (ToRow, ToCol)),
 
-    write('How many pieces do you want (e.g., 1, 2, 3, 4): '),
-    read(NPiecesInput), 
+    (((Val > 1) -> write('How many pieces do you want (e.g., 1, 2, 3, 4): '), read(NPiecesInput)); NPiecesInput = 1),
 
     (NPiecesInput =< Val),
 
@@ -123,6 +122,11 @@ choose_move(GameState, Player, Move) :-
         (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-NPiecesInput))
         )
     ),
+    find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths),
+    (Paths \= []),
+    write('Paths: '),
+    write(Paths), nl,
+
 
     From = (FromRow, FromCol),
     To = (ToRow, ToCol),
@@ -186,3 +190,44 @@ replace_element([X | Rest], Column, Piece, [X | NewRest]) :-
 piece_value(red(N), N).
 piece_value(black(N), N).
 piece_value(empty, 0).
+
+
+%PATH
+
+% Predicate to find all possible paths from (FromRow, FromCol) to (ToRow, ToCol) within a given number of moves.
+find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths) :-
+    findall(Path, possible_path(GameState, FromRow, FromCol, ToRow, ToCol, Possible, [], Path), Paths).
+
+% Predicate to check if a position (X, Y) is valid and within the bounds of the game board.
+valid_position(X, Y) :- X >= 1, X =< 7, Y >= 1, Y =< 5.
+
+% Predicate to calculate the next position in a certain direction.
+next_position((X, Y), (X1, Y1)) :- X1 is X + 1, Y1 is Y.
+next_position((X, Y), (X1, Y1)) :- X1 is X - 1, Y1 is Y.
+next_position((X, Y), (X1, Y1)) :- X1 is X, Y1 is Y + 1.
+next_position((X, Y), (X1, Y1)) :- X1 is X, Y1 is Y - 1.
+next_position((X, Y), (X1, Y1)) :- X1 is X-1, Y1 is Y - 1.
+next_position((X, Y), (X1, Y1)) :- X1 is X+1, Y1 is Y + 1.
+next_position((X, Y), (X1, Y1)) :- X1 is X+1, Y1 is Y - 1.
+next_position((X, Y), (X1, Y1)) :- X1 is X-1, Y1 is Y + 1.
+
+
+% Recursive predicate to find possible paths.
+possible_path(_, X, Y, X, Y, 0, Path, Path).
+possible_path(_, X, Y, X, Y, 1, Path, Path).
+possible_path(_, X, Y, X, Y, 2, Path, Path).
+possible_path(GameState, X, Y, ToRow, ToCol, Possible, CurrentPath, Path) :-
+    Possible > 0,
+    next_position((X, Y), (X1, Y1)), % Get the next position
+    valid_position(X1, Y1), % Check if it's a valid position
+    %((X1 = ToRow, Y1 = ToCol) -> append(CurrentPath, [(X1, Y1)], NewPath); true),
+    nth1(X1, GameState, Row),
+    %nth1(Y1, Row, empty),
+    (
+        Possible > 1 -> 
+        ((nth1(Y1, Row, empty)) ; (X1 = ToRow, Y1 = ToCol))
+        ; nth1(Y1, Row, _) % se for o ultimo move o espaço nao tem que ser empty
+    ), % Check if it's an empty space
+    NewPossible is Possible - 1,
+    append(CurrentPath, [(X1, Y1)], NewPath),
+    possible_path(GameState, X1, Y1, ToRow, ToCol, NewPossible, NewPath, Path).
