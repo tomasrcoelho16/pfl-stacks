@@ -34,12 +34,18 @@ handle_menu_option(_) :- % Handle invalid input
 % Define game modes as placeholders (you need to implement these).
 start_human_vs_human_game :-
     write('yoo'),
+    %play_game.
     initial_state(Board),
-    display_board(Board),
-    write('teste').
+    display_board(Board).
+    %sum_black_pieces_first_line(Board, Sum),
+    %write(Sum),
+    %write('teste'),
 
 
 start_human_vs_bot_game :-
+    initial_state(Board),
+    replace(Board, 3,2, red(2), NewBoard),
+    display_board(NewBoard),
     write('Starting Human vs Bot game...\n').
 
 start_bot_vs_bot_game :-
@@ -49,8 +55,26 @@ start_bot_vs_bot_game :-
 % You can modify this to fit your game's entry point.
 main :- play.
 
+play_game:-
+    write('yauza'),
+    initial_state(GameState),
+    display_board(GameState),
+    game_cycle(GameState-Player).   
+
+game_cycle(GameState-Player):-
+    game_over(GameState, Winner), !,
+    congratulate(Winner).
+
+game_cycle(GameState-Player):-
+    choose_move(GameState, Player, Move),
+    move(GameState, Move, NewGameState),
+    next_player(Player, NextPlayer),
+    display_game(NewGameState-NextPlayer), !,
+    game_cycle(NewGameState-NextPlayer).
 
 
+game_over(GameState, Winner) :-
+    (sum_black_pieces_first_line(GameState, Sum), Sum>=4 , Winner = 'Black', write('Black Wins!')).
 
 
 
