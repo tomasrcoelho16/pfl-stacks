@@ -56,17 +56,32 @@ display_cell(black(N)) :-
 choose_move(GameState, human, From-To) :-
     %display_board(GameState),
     write('Select a piece (e.g., a1): '),
-    read(From),    % Read the coordinate of the piece to move
+    read(FromInput),
+    
+    user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
+    
+    write(FromInput), nl,   % Read the coordinate of the piece to move
+    write(FromRow),
+    write(FromCol),
+
 
     write('Select a destination (e.g., b2): '),
-    read(To),      % Read the coordinate for the destination
+    read(ToInput),      % Read the coordinate for the destination
 
-    From-To = (From, To).
+    user_input_to_coordinates(ToInput, (ToRow, ToCol)),
+
+    write(ToInput), nl,
+    write(ToRow),
+    write(ToCol),
+
+    From = (FromRow, FromCol),
+    To = (ToRow, ToCol)
+    .
 
 % para o bot
-choose_move(GameState, computer-Level, Move):-
-    valid_moves(GameState, Moves),
-    choose_move(Level, GameState, Moves, Move).
+%choose_move(GameState, computer-Level, Move):-
+    %valid_moves(GameState, Moves),
+    %choose_move(Level, GameState, Moves, Move).
 
 
 % Define a predicate to convert a user input like "A2" to column and row coordinates.
@@ -78,9 +93,27 @@ user_input_to_coordinates(UserInput, (Row, Col)) :-
 
 %MOVER A PUTA DAS PECAS
 
-move_piece(Board, NewBoard) :-
-    replace(Board, 1, 3, empty, TempBoard),
-    replace(TempBoard, 4, 3, red(2), NewBoard).
+% Define a predicate to move a piece from one position to another.
+move(GameState, From-To, NewGameState) :-
+    % Split the coordinates into separate components
+    %user_input_to_coordinates(From, (FromRow, FromCol)),
+    %user_input_to_coordinates(To, (ToRow, ToCol)),
+
+    From = (FromRow, FromCol),
+    To = (ToRow, ToCol),
+    write(FromRow), nl,
+    write(FromCol), nl,
+    write(ToRow), nl,
+    write(ToCol), nl,
+
+    % Extract the piece from the source position
+    nth1(FromRow, GameState, FromRowList),
+    nth1(FromCol, FromRowList, Piece),
+
+    % Create the new board with the piece moved
+    replace(GameState, FromRow, FromCol, empty, TempGameState),
+    replace(TempGameState, ToRow, ToCol, red(2), NewGameState).
+
 
 replace(Board, Row, Column, Piece, NewBoard) :-
     replace_row(Board, Row, Column, Piece, NewBoard).

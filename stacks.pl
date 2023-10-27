@@ -53,7 +53,6 @@ sum_black_pieces([Row | Rest], PartialSum, Sum) :-
 count_black_pieces_in_row([], 0).
 count_black_pieces_in_row([black(N) | Rest], RowSum) :-
     count_black_pieces_in_row(Rest, RestSum),
-    N is N = 3,
     RowSum is N + RestSum.
 count_black_pieces_in_row([_ | Rest], RowSum) :-
     count_black_pieces_in_row(Rest, RowSum).
@@ -102,10 +101,14 @@ start_human_vs_human_game :-
 
 
 start_human_vs_bot_game :-
-    initial_state(Board),
-    display_board(Board),
-    move_piece(Board, NewBoard),
-    display_board(NewBoard),
+    initial_state(GameState),
+    display_board(GameState),
+    choose_move(GameState, human, From-To),
+    write('test'), nl,
+    write(From), nl,
+    write(To), nl,
+    move(GameState, From-To, NewGameState),
+    display_board(NewGameState),
     write('Starting Human vs Bot game...\n').
 
 start_bot_vs_bot_game :-
