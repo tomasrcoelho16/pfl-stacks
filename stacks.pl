@@ -118,7 +118,7 @@ main :- play.
 play_game:-
     initial_state(GameState),
     display_board(GameState),
-    game_cycle(GameState-Player).   
+    game_cycle(GameState-black).   
 
 game_cycle(GameState-Player):-
     game_over(GameState, Winner), !.
@@ -127,23 +127,17 @@ game_cycle(GameState-Player):-
 to_play(true).
 
 game_cycle(GameState-Player):-
-    (to_play == true) -> 
-        retract(to_play(true)),
-        assertz(to_play(false)),
-        write('Black to play:\n')
-    ;
-    to_play(false) ->
-        retract(to_play(false)),
-        assertz(to_play(true)),
-        write('Red to play:\n')
-    ,
-    choose_move(GameState, human, From-To),
+    write('CURRENT PLAYER:'),
+    write(Player), nl,
+    choose_move(GameState, Player, From-To),
     move(GameState, From-To, NewGameState),
-    %next_player(Player, NextPlayer),
+    next_player(Player, NextPlayer),
     display_board(NewGameState),
     !,
     game_cycle(NewGameState-NextPlayer).
 
+next_player(black, red).
+next_player(red, black).
 
 game_over(GameState, Winner) :-
     sum_red_pieces(GameState, SumRedTotal), !,

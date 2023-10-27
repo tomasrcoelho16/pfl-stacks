@@ -5,7 +5,7 @@
 % empty represents an empty cell.
 
 initial_state([
-    [red(2), red(2), red(2), red(2), red(2)],
+    [red(3), red(2), red(2), red(2), red(2)],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
@@ -53,7 +53,7 @@ display_cell(black(N)) :-
 
 
 % Choose move for a human player (select piece and destination)
-choose_move(GameState, human, From-To) :-
+choose_move(GameState, Player, From-To) :-
     %display_board(GameState),
     write('Select a piece (e.g., a1): '),
     read(FromInput),
@@ -101,7 +101,7 @@ move(GameState, From-To, NewGameState) :-
 
     % Create the new board with the piece moved
     replace(GameState, FromRow, FromCol, empty, TempGameState),
-    replace(TempGameState, ToRow, ToCol, red(2), NewGameState).
+    replace(TempGameState, ToRow, ToCol, Piece, NewGameState).
 
 
 replace(Board, Row, Column, Piece, NewBoard) :-
