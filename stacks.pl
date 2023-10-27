@@ -59,7 +59,7 @@ count_black_pieces_in_row([_ | Rest], RowSum) :-
 
 % Predicate to calculate the sum of red pieces on row 7
 sum_black_pieces_on_row1(Board, Sum) :-
-    nth1(1, Board, Row1), % Get the 7th row
+    nth1(1, Board, Row1), % Get the 1st row
     count_black_pieces_in_row(Row1, Sum).
 
 
@@ -89,17 +89,12 @@ handle_menu_option(_) :- % Handle invalid input
 % Define game modes as placeholders (you need to implement these).
 start_human_vs_human_game :-
     write('yoo'),
-    %play_game.
-    initial_state(Board),
-    display_board(Board),
-    sum_red_pieces(Board, SumRed),
-    sum_black_pieces(Board, SumBlack),
-    sum_black_pieces_on_row1(Board, SumBlackRow1),
-    sum_red_pieces_on_row7(Board, SumRedRow7),
-    write(SumBlackRow1), nl,
-    write(SumRedRow7), nl,
-    write(SumBlack), nl,
-    write(SumRed).
+    play_game.
+    %initial_state(GameState),
+    %display_board(GameState),
+    %sum_red_pieces(GameState, SumRedTotal),
+    %write('Total reds: '),
+    %write(SumRedTotal).
     %sum_black_pieces_first_line(Board, Sum),
     %write(Sum),
     %write('teste'),
@@ -125,8 +120,9 @@ play_game:-
     game_cycle(GameState-Player).   
 
 game_cycle(GameState-Player):-
-    game_over(GameState, Winner), !,
+    game_over(GameState, Winner), !, 
     congratulate(Winner).
+
 
 game_cycle(GameState-Player):-
     choose_move(GameState, Player, Move),
@@ -137,22 +133,32 @@ game_cycle(GameState-Player):-
 
 
 game_over(GameState, Winner) :-
-    (sum_black_pieces_first_line(GameState, Sum), Sum>=4 , Winner = 'Black', write('Black Wins!')).
+    write('Checking conditions...'),
+    sum_red_pieces(GameState, SumRedTotal),
+    write(SumRedTotal), nl,
+    sum_black_pieces(GameState, SumBlackTotal),
+    write(SumBlackTotal), nl,
+    sum_red_pieces_on_row7(GameState, SumRed7),
+    write(SumRed7), nl,
+    sum_black_pieces_on_row1(GameState, SumBlack1),
+    write(SumBlack1),
+    (
+    SumRedTotal < 5 ->
+    Winner = 'Black', 
+    write('Black Wins!')
+    ;   
+    SumBlackTotal < 5 ->    
+    Winner = 'Red',
+    write('Red Wins!')
+    ;
+    SumRed7 > 3 ->
+    Winner = 'Red',
+    write('Red Wins!')
+    ;
+    SumBlack1 > 3 ->
+    Winner = 'Black',
+    write('Black Wins!')
+    )
+    .
 
 
-
-
-
-board:-   write('|1b2|2b2|3b2|4b2|5b2|'),nl,
-          write('---------------------'), nl,
-          write('|   |   |   |   |   |'),nl,
-          write('---------------------'),nl,
-          write('|   |   |   |   |   |'),nl,
-          write('---------------------'),nl,
-          write('|   |   |   |   |   |'),nl,
-          write('---------------------'),nl,
-          write('|   |   |   |   |   |'),nl,
-          write('---------------------'),nl,
-          write('|   |   |   |   |   |'),nl,
-          write('---------------------'),nl,
-          write('|1r2|2r2|3r2|4r2|5r2|').

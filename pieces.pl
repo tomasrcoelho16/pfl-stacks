@@ -5,13 +5,13 @@
 % empty represents an empty cell.
 
 initial_state([
-    [black(2), black(1), red(1), red(2), red(2)],
+    [red(1), red(1), black(1), black(1), red(2)],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
-    [black(2), black(2), red(2), black(2), red(4)]
+    [black(1), black(1), black(2), black(3), black(2)]
 ]).
 
 % Define a predicate to display the game board.
@@ -50,6 +50,18 @@ display_cell(red(N)) :-
     format('R~d ', [N]).
 display_cell(black(N)) :-
     format('B~d ', [N]).
+
+
+% Choose move for a human player (replace with your specific input method)
+choose_move(GameState, human, Move) :-
+    display_board(GameState),
+    write('Enter your move: '),
+    read(Move).
+
+% para o bot
+choose_move(GameState, computer-Level, Move):-
+    valid_moves(GameState, Moves),
+    choose_move(Level, GameState, Moves, Move).
 
 
 
