@@ -55,7 +55,7 @@ calculate_possible(Val, Possible) :-
     Possible is 4 - Val.
 
 % Choose move for a human player (select piece and destination)
-choose_move(GameState, Player, From-To) :-
+choose_move(GameState, Player, Move) :-
     %display_board(GameState),
     repeat,
     write('Select a piece (e.g., a1): '),
@@ -76,21 +76,41 @@ choose_move(GameState, Player, From-To) :-
 
     user_input_to_coordinates(ToInput, (ToRow, ToCol)),
 
+    %write('Select a destination (e.g., 1, 2, 3, 4): '),
+    %read(ToInput), 
+
+
     (abs(FromRow - ToRow) =< Possible, abs(FromCol - ToCol) =< Possible),
 
     nth1(ToRow, GameState, RowEnemy),
     nth1(ToCol, RowEnemy, PieceEnemy),
     piece_value(PieceEnemy, ValEnemy),
     
-    ( (Player = black, PieceEnemy = black(_), (Val+ValEnemy) =< 4) ;
-      (Player = red, PieceEnemy = red(_), (Val+ValEnemy) =< 4 );
-      (Player = red, (PieceEnemy = black(_); PieceEnemy = empty), (Val > ValEnemy));
-      (Player = black, (PieceEnemy = red(_); PieceEnemy = empty), (Val > ValEnemy))),
+    ( (Player = black, PieceEnemy = black(_), (Val+ValEnemy) =< 4,    
+        NewValue is Val + ValEnemy,
+        PieceTo = black(NewValue)
+        ) ;
+      (Player = red, PieceEnemy = red(_), (Val+ValEnemy) =< 4,
+        NewValue is Val + ValEnemy,
+        PieceTo = red(NewValue)
+        ) ;
+      (Player = red, (PieceEnemy = black(_); PieceEnemy = empty), (Val > ValEnemy),
+         NewValue is Val,
+         PieceTo = Piece
+         ) ;
+      (Player = black, (PieceEnemy = red(_); PieceEnemy = empty), (Val > ValEnemy),
+        NewValue is Val,
+        PieceTo = Piece
+        )
+    ),
 
     %(Val > ValEnemy),
 
+
+
     From = (FromRow, FromCol),
-    To = (ToRow, ToCol)
+    To = (ToRow, ToCol),
+    Move = (From, To, PieceTo)
     .
 
 % para o bot
@@ -109,19 +129,20 @@ user_input_to_coordinates(UserInput, (Row, Col)) :-
 %MOVER A PUTA DAS PECAS
 
 % Define a predicate to move a piece from one position to another.
-move(GameState, From-To, NewGameState) :-
+move(GameState, Move, NewGameState) :-
     % Split the coordinates into separate components
+    Move = (From, To, PieceTo),
 
     From = (FromRow, FromCol),
     To = (ToRow, ToCol),
 
     % Extract the piece from the source position
     nth1(FromRow, GameState, FromRowList),
-    nth1(FromCol, FromRowList, Piece),
+    %nth1(FromCol, FromRowList, PieceTo),
 
     % Create the new board with the piece moved
     replace(GameState, FromRow, FromCol, empty, TempGameState),
-    replace(TempGameState, ToRow, ToCol, Piece, NewGameState).
+    replace(TempGameState, ToRow, ToCol, PieceTo, NewGameState).
 
 
 replace(Board, Row, Column, Piece, NewBoard) :-

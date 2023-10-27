@@ -103,8 +103,8 @@ start_human_vs_human_game :-
 start_human_vs_bot_game :-
     initial_state(GameState),
     display_board(GameState),
-    choose_move(GameState, human, From-To),
-    move(GameState, From-To, NewGameState),
+    choose_move(GameState, human, Move),
+    move(GameState, Move, NewGameState),
     display_board(NewGameState),
     write('Starting Human vs Bot game...\n').
 
@@ -129,8 +129,8 @@ to_play(true).
 game_cycle(GameState-Player):-
     write('CURRENT PLAYER:'),
     write(Player), nl,
-    choose_move(GameState, Player, From-To),
-    move(GameState, From-To, NewGameState),
+    choose_move(GameState, Player, Move),
+    move(GameState, Move, NewGameState),
     next_player(Player, NextPlayer),
     display_board(NewGameState),
     !,
