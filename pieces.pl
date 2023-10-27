@@ -76,6 +76,10 @@ choose_move(GameState, Player, Move) :-
     
     user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
 
+    ((FromRow =\= 1, Player = black);
+     (FromRow =\= 7, Player = red)
+    ),
+
     write('Select a destination (e.g., b2): '),
     read(ToInput),      % Read the coordinate for the destination
 
