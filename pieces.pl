@@ -11,7 +11,7 @@ initial_state([
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
-    [black(2), black(2), black(2), black(2), black(2)]
+    [black(1), black(2), black(3), black(4), black(2)]
 ]).
 
 % Define a predicate to display the game board.
@@ -51,6 +51,8 @@ display_cell(red(N)) :-
 display_cell(black(N)) :-
     format('B~d ', [N]).
 
+calculate_possible(Val, Possible) :-
+    Possible is 4 - Val.
 
 % Choose move for a human player (select piece and destination)
 choose_move(GameState, Player, From-To) :-
@@ -65,11 +67,17 @@ choose_move(GameState, Player, From-To) :-
     ( (Player = black, Piece = black(_)) ;
       (Player = red, Piece = red(_)) ),
 
+    piece_value(Piece, Val),
+    calculate_possible(Val, Possible),
     user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
+
     write('Select a destination (e.g., b2): '),
     read(ToInput),      % Read the coordinate for the destination
 
     user_input_to_coordinates(ToInput, (ToRow, ToCol)),
+
+    (abs(FromRow - ToRow) =< Possible, abs(FromCol - ToCol) =< Possible),
+
     From = (FromRow, FromCol),
     To = (ToRow, ToCol)
     .
