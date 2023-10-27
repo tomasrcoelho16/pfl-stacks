@@ -82,7 +82,12 @@ choose_move(GameState, Player, From-To) :-
     nth1(ToCol, RowEnemy, PieceEnemy),
     piece_value(PieceEnemy, ValEnemy),
     
-    (Val > ValEnemy),
+    ( (Player = black, PieceEnemy = black(_), (Val+ValEnemy) =< 4) ;
+      (Player = red, PieceEnemy = red(_), (Val+ValEnemy) =< 4 );
+      (Player = red, (PieceEnemy = black(_); PieceEnemy = empty), (Val > ValEnemy));
+      (Player = black, (PieceEnemy = red(_); PieceEnemy = empty), (Val > ValEnemy))),
+
+    %(Val > ValEnemy),
 
     From = (FromRow, FromCol),
     To = (ToRow, ToCol)
