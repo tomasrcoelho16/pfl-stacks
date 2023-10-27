@@ -120,7 +120,7 @@ play_game:-
     game_cycle(GameState-Player).   
 
 game_cycle(GameState-Player):-
-    game_over(GameState, Winner), !, 
+    game_over(GameState, Winner), !,
     congratulate(Winner).
 
 
@@ -133,32 +133,26 @@ game_cycle(GameState-Player):-
 
 
 game_over(GameState, Winner) :-
-    write('Checking conditions...'),
-    sum_red_pieces(GameState, SumRedTotal),
-    write(SumRedTotal), nl,
-    sum_black_pieces(GameState, SumBlackTotal),
-    write(SumBlackTotal), nl,
-    sum_red_pieces_on_row7(GameState, SumRed7),
-    write(SumRed7), nl,
-    sum_black_pieces_on_row1(GameState, SumBlack1),
-    write(SumBlack1),
-    (
-    SumRedTotal < 5 ->
-    Winner = 'Black', 
-    write('Black Wins!')
-    ;   
-    SumBlackTotal < 5 ->    
-    Winner = 'Red',
-    write('Red Wins!')
-    ;
-    SumRed7 > 3 ->
-    Winner = 'Red',
-    write('Red Wins!')
-    ;
-    SumBlack1 > 3 ->
-    Winner = 'Black',
-    write('Black Wins!')
-    )
-    .
+    write('Checking conditions...'), nl,
+    sum_red_pieces(GameState, SumRedTotal), !,
+    write('Sum of red pieces: '), write(SumRedTotal), nl,
+    sum_black_pieces(GameState, SumBlackTotal), !,
+    write('Sum of black pieces: '), write(SumBlackTotal), nl,
+    sum_red_pieces_on_row7(GameState, SumRed7), !,
+    write('Sum of red pieces on row 7: '), write(SumRed7), nl,
+    sum_black_pieces_on_row1(GameState, SumBlack1), !,
+    write('Sum of black pieces on row 1: '), write(SumBlack1), nl,
+
+    (   (SumRedTotal < 5, Winner = 'Black') ->
+        write('Black Wins!'), nl
+    ;   (SumBlackTotal < 5, Winner = 'Red') ->
+        write('Red Wins22!'), nl
+    ;   (SumRed7 > 3, Winner = 'Red') ->
+        write('Red Wins11!'), nl
+    ;   (SumBlack1 > 3, Winner = 'Black') ->
+        write('Black Wins!'), nl
+    ).
+
+
 
 

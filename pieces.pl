@@ -5,13 +5,13 @@
 % empty represents an empty cell.
 
 initial_state([
-    [red(1), red(1), black(1), black(1), red(2)],
+    [red(1), red(1), red(1), red(1), empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
-    [black(1), black(1), black(2), black(3), black(2)]
+    [black(2), black(2), black(2), black(2), black(2)]
 ]).
 
 % Define a predicate to display the game board.
@@ -52,11 +52,19 @@ display_cell(black(N)) :-
     format('B~d ', [N]).
 
 
-% Choose move for a human player (replace with your specific input method)
-choose_move(GameState, human, Move) :-
+% Choose move for a human player (select piece and destination)
+choose_move(GameState, human, From-To) :-
     display_board(GameState),
-    write('Enter your move: '),
-    read(Move).
+    write('Select a piece (e.g., a1): '),
+    read(From),    % Read the coordinate of the piece to move
+
+    write('Select a destination (e.g., b2): '),
+    read(To),      % Read the coordinate for the destination
+
+    From-To = (From, To).
+
+
+
 
 % para o bot
 choose_move(GameState, computer-Level, Move):-
@@ -64,6 +72,12 @@ choose_move(GameState, computer-Level, Move):-
     choose_move(Level, GameState, Moves, Move).
 
 
+% Define a predicate to convert a user input like "A2" to column and row coordinates.
+user_input_to_coordinates(UserInput, (Row, Col)) :-
+    atom_chars(UserInput, [ColChar, RowDigit]),
+    char_code(ColChar, ColCode),
+    Col is ColCode - 64, % Convert ASCII value to column number (A=1, B=2, ...)
+    number_chars(Row, [RowDigit]).
 
 % Move a piece from one column to another.
 move_piece([Row1|Rows], FromCol, ToCol, NewGameState) :-
