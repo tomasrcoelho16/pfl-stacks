@@ -33,6 +33,11 @@ display_rows([Row | Rest], RowNumber) :-
     write(RowNumber),
     write(' '),
     display_row(Row),
+    (RowNumber =:= 1 -> write('   Max movement per stack: ') ; true),
+    (RowNumber =:= 3 -> write('   Stack of 4: cannot move') ; true),
+    (RowNumber =:= 4 -> write('   Stack of 3: one space') ; true),
+    (RowNumber =:= 5 -> write('   Stack of 2: two spaces') ; true),
+    (RowNumber =:= 6 -> write('   Stack of 1: three spaces') ; true),
     nl,
     NextRowNumber is RowNumber + 1,
     display_rows(Rest, NextRowNumber).
@@ -68,7 +73,7 @@ choose_move(GameState, Player, Move) :-
       (Player = red, Piece = red(_)) ),
 
     piece_value(Piece, Val),
-    calculate_possible(Val, Possible),
+    
     user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
 
     write('Select a destination (e.g., b2): '),
@@ -76,41 +81,43 @@ choose_move(GameState, Player, Move) :-
 
     user_input_to_coordinates(ToInput, (ToRow, ToCol)),
 
-    %write('Select a destination (e.g., 1, 2, 3, 4): '),
-    %read(ToInput), 
+    write('How many pieces do you want (e.g., 1, 2, 3, 4): '),
+    read(NPiecesInput), 
 
+    (NPiecesInput =< Val),
 
+    calculate_possible(NPiecesInput, Possible),
     (abs(FromRow - ToRow) =< Possible, abs(FromCol - ToCol) =< Possible),
 
     nth1(ToRow, GameState, RowEnemy),
     nth1(ToCol, RowEnemy, PieceEnemy),
     piece_value(PieceEnemy, ValEnemy),
     
-    ( (Player = black, PieceEnemy = black(_), (Val+ValEnemy) =< 4,    
-        NewValue is Val + ValEnemy,
-        PieceTo = black(NewValue)
+    ( (Player = black, PieceEnemy = black(_), (NPiecesInput+ValEnemy) =< 4,    
+        NewValue is NPiecesInput + ValEnemy,
+        PieceTo = black(NewValue),
+        (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-NPiecesInput))
         ) ;
-      (Player = red, PieceEnemy = red(_), (Val+ValEnemy) =< 4,
-        NewValue is Val + ValEnemy,
-        PieceTo = red(NewValue)
+      (Player = red, PieceEnemy = red(_), (NPiecesInput+ValEnemy) =< 4,
+        NewValue is NPiecesInput + ValEnemy,
+        PieceTo = red(NewValue),
+        (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = red(Val-NPiecesInput))
         ) ;
-      (Player = red, (PieceEnemy = black(_); PieceEnemy = empty), (Val > ValEnemy),
-         NewValue is Val,
-         PieceTo = Piece
+      (Player = red, (PieceEnemy = black(_); PieceEnemy = empty), (NPiecesInput > ValEnemy),
+         NewValue is NPiecesInput,
+         PieceTo = red(NPiecesInput),
+        ((NPiecesInput =:= Val -> PieceFrom = empty; PieceFrom = red(Val-NPiecesInput)))
          ) ;
-      (Player = black, (PieceEnemy = red(_); PieceEnemy = empty), (Val > ValEnemy),
-        NewValue is Val,
-        PieceTo = Piece
+      (Player = black, (PieceEnemy = red(_); PieceEnemy = empty), (NPiecesInput > ValEnemy),
+        NewValue is NPiecesInput,
+        PieceTo = black(NPiecesInput),
+        (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-NPiecesInput))
         )
     ),
 
-    %(Val > ValEnemy),
-
-
-
     From = (FromRow, FromCol),
     To = (ToRow, ToCol),
-    Move = (From, To, PieceTo)
+    Move = (From, To, PieceFrom, PieceTo)
     .
 
 % para o bot
@@ -131,7 +138,7 @@ user_input_to_coordinates(UserInput, (Row, Col)) :-
 % Define a predicate to move a piece from one position to another.
 move(GameState, Move, NewGameState) :-
     % Split the coordinates into separate components
-    Move = (From, To, PieceTo),
+    Move = (From, To, PieceFrom, PieceTo),
 
     From = (FromRow, FromCol),
     To = (ToRow, ToCol),
@@ -141,7 +148,7 @@ move(GameState, Move, NewGameState) :-
     %nth1(FromCol, FromRowList, PieceTo),
 
     % Create the new board with the piece moved
-    replace(GameState, FromRow, FromCol, empty, TempGameState),
+    replace(GameState, FromRow, FromCol, PieceFrom, TempGameState),
     replace(TempGameState, ToRow, ToCol, PieceTo, NewGameState).
 
 
