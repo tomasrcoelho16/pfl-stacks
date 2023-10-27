@@ -5,13 +5,13 @@
 % empty represents an empty cell.
 
 initial_state([
-    [red(3), red(2), red(2), red(2), red(2)],
+    [red(3), red(1), red(2), red(4), red(2)],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
-    [black(1), black(2), black(3), black(4), black(2)]
+    [black(1), black(2), black(3), black(2), black(2)]
 ]).
 
 % Define a predicate to display the game board.
@@ -77,6 +77,12 @@ choose_move(GameState, Player, From-To) :-
     user_input_to_coordinates(ToInput, (ToRow, ToCol)),
 
     (abs(FromRow - ToRow) =< Possible, abs(FromCol - ToCol) =< Possible),
+
+    nth1(ToRow, GameState, RowEnemy),
+    nth1(ToCol, RowEnemy, PieceEnemy),
+    piece_value(PieceEnemy, ValEnemy),
+    
+    (Val > ValEnemy),
 
     From = (FromRow, FromCol),
     To = (ToRow, ToCol)
@@ -156,3 +162,4 @@ update_stack(black(Size), NewSize, NewStack) :- NewSize > 0, NewSize =< 4, NewSt
 
 piece_value(red(N), N).
 piece_value(black(N), N).
+piece_value(empty, 0).
