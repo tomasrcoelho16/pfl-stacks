@@ -172,25 +172,6 @@ replace_element([X | Rest], Column, Piece, [X | NewRest]) :-
     NextColumn is Column - 1,
     replace_element(Rest, NextColumn, Piece, NewRest).
 
-% AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-
-
-% Select a stack from a row.
-select_stack(Row, Col, Stack, RestRow) :-
-    nth1(Col, Row, Stack),
-    select(Stack, Row, RestRow).
-
-% Get the size of the stack (0 if empty).
-piece_size(empty, 0).
-piece_size(red(Size), Size) :- Size > 0.
-piece_size(black(Size), Size) :- Size > 0.
-
-% Update the stack size.
-update_stack(empty, _, empty). % Clear the cell if unstacked completely.
-update_stack(red(Size), NewSize, NewStack) :- NewSize > 0, NewSize =< 4, NewStack = red(NewSize).
-update_stack(black(Size), NewSize, NewStack) :- NewSize > 0, NewSize =< 4, NewStack = black(NewSize).
-
-
 % TESTE
 
 piece_value(red(N), N).
