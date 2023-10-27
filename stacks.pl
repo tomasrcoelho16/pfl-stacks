@@ -104,9 +104,6 @@ start_human_vs_bot_game :-
     initial_state(GameState),
     display_board(GameState),
     choose_move(GameState, human, From-To),
-    write('test'), nl,
-    write(From), nl,
-    write(To), nl,
     move(GameState, From-To, NewGameState),
     display_board(NewGameState),
     write('Starting Human vs Bot game...\n').
@@ -119,21 +116,32 @@ start_bot_vs_bot_game :-
 main :- play.
 
 play_game:-
-    write('yauza'),
     initial_state(GameState),
     display_board(GameState),
     game_cycle(GameState-Player).   
 
 game_cycle(GameState-Player):-
-    game_over(GameState, Winner), !,
-    congratulate(Winner).
+    game_over(GameState, Winner), !.
 
+:- dynamic to_play/1.
+to_play(true).
 
 game_cycle(GameState-Player):-
-    choose_move(GameState, Player, Move),
-    move(GameState, Move, NewGameState),
-    next_player(Player, NextPlayer),
-    display_game(NewGameState-NextPlayer), !,
+    (to_play == true) -> 
+        retract(to_play(true)),
+        assertz(to_play(false)),
+        write('Black to play:\n')
+    ;
+    to_play(false) ->
+        retract(to_play(false)),
+        assertz(to_play(true)),
+        write('Red to play:\n')
+    ,
+    choose_move(GameState, human, From-To),
+    move(GameState, From-To, NewGameState),
+    %next_player(Player, NextPlayer),
+    display_board(NewGameState),
+    !,
     game_cycle(NewGameState-NextPlayer).
 
 
@@ -146,9 +154,9 @@ game_over(GameState, Winner) :-
     (   (SumRedTotal < 5, Winner = 'Black') ->
         write('Black Wins!'), nl
     ;   (SumBlackTotal < 5, Winner = 'Red') ->
-        write('Red Wins22!'), nl
+        write('Red Wins!'), nl
     ;   (SumRed7 > 3, Winner = 'Red') ->
-        write('Red Wins11!'), nl
+        write('Red Wins!'), nl
     ;   (SumBlack1 > 3, Winner = 'Black') ->
         write('Black Wins!'), nl
     ).

@@ -59,21 +59,10 @@ choose_move(GameState, human, From-To) :-
     read(FromInput),
     
     user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
-    
-    write(FromInput), nl,   % Read the coordinate of the piece to move
-    write(FromRow),
-    write(FromCol),
-
-
     write('Select a destination (e.g., b2): '),
     read(ToInput),      % Read the coordinate for the destination
 
     user_input_to_coordinates(ToInput, (ToRow, ToCol)),
-
-    write(ToInput), nl,
-    write(ToRow),
-    write(ToCol),
-
     From = (FromRow, FromCol),
     To = (ToRow, ToCol)
     .
