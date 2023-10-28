@@ -9,9 +9,9 @@ initial_state([
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
-    [black(1), empty, empty, empty, empty],
-    [empty, black(1), black(1), black(1), empty],
-    [black(1), black(1), black(1), black(2), black(2)]
+    [empty, empty, empty, empty, empty],
+    [red(2), empty, empty, empty, empty],
+    [black(3), black(1), black(1), black(2), black(2)]
 ]).
 
 % Define a predicate to display the game board.
@@ -157,11 +157,28 @@ move(GameState, Move, NewGameState) :-
     To = (ToRow, ToCol),
 
     % Extract the piece from the source position
-    nth1(FromRow, GameState, FromRowList),
+    %nth1(FromRow, GameState, FromRowList),
     %nth1(FromCol, FromRowList, PieceTo),
 
+    nth1(ToRow, GameState, ToRowList),
+    nth1(ToCol, ToRowList, EnemyPiece),
+
+    piece_value(PieceTo, PieceToValue),
+    piece_value(EnemyPiece, EnemyPieceValue),
+
+    (
+        ((PieceTo = red(_),
+         EnemyPiece = black(_), ((PieceToValue - EnemyPieceValue) > 0)) ->
+         replace(GameState, ToRow - 1, ToCol, black(PieceToValue - EnemyPieceValue), GameState0) );
+         ((PieceTo = black(_),
+         EnemyPiece = red(_), ((PieceToValue - EnemyPieceValue) > 0)) ->
+         replace(GameState, ToRow - 1, ToCol, red(PieceToValue - EnemyPieceValue), GameState0) );
+         GameState0 = GameState
+    ),
+
+
     % Create the new board with the piece moved
-    replace(GameState, FromRow, FromCol, PieceFrom, TempGameState),
+    replace(GameState0, FromRow, FromCol, PieceFrom, TempGameState),
     replace(TempGameState, ToRow, ToCol, PieceTo, NewGameState).
 
 
