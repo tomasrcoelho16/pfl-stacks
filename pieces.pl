@@ -245,7 +245,7 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     (abs(FromRow2 - ToRow2) =< 2, abs(FromCol2 - ToCol2) =< 2),
 
     nth1(ToRow2, TwoMovesGamestate, RowEnemy2),
-    nth1(ToCol2, RowEnemy, PieceEnemy2),
+    nth1(ToCol2, RowEnemy2, PieceEnemy2),
     piece_value(PieceEnemy2, ValEnemy2),
 
     (
