@@ -212,9 +212,9 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     Move = (From, To, PieceFrom, PieceTo),
     move(GameState, Move, TwoMovesGamestate),
 
-    repeat,
 
     display_board(TwoMovesGamestate),
+    repeat,
     write('CURRENT PLAYER: '),
     write(Player),nl,
     write('Select the second piece (e.g., a1): '),
