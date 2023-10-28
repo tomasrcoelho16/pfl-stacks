@@ -7,10 +7,10 @@
 initial_state([
     [red(3), black(1), red(2), red(4), red(2)],
     [empty, empty, empty, empty, empty],
+    [empty, red(1), empty, empty, empty],
+    [red(1), empty, empty, empty, empty],
+    [empty, black(1), empty, empty, empty],
     [empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty],
-    [red(2), red(2), empty, empty, empty],
     [black(3), black(1), black(1), black(2), black(2)]
 ]).
 
@@ -122,7 +122,7 @@ choose_move(GameState, Player, Move) :-
         (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-NPiecesInput))
         )
     ),
-    find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths),
+    find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player),
     (Paths \= []),
     write('Paths: '),
     write(Paths), nl,
@@ -233,8 +233,8 @@ piece_value(empty, 0).
 %PATH
 
 % Predicate to find all possible paths from (FromRow, FromCol) to (ToRow, ToCol) within a given number of moves.
-find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths) :-
-    findall(Path, possible_path(GameState, FromRow, FromCol, ToRow, ToCol, Possible, [], Path), Paths).
+find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player) :-
+    findall(Path, possible_path(GameState, FromRow, FromCol, ToRow, ToCol, Possible, [], Path, Player), Paths).
 
 % Predicate to check if a position (X, Y) is valid and within the bounds of the game board.
 valid_position(X, Y) :- X >= 1, X =< 7, Y >= 1, Y =< 5.
@@ -251,16 +251,24 @@ next_position((X, Y), (X1, Y1)) :- X1 is X-1, Y1 is Y + 1.
 
 
 % Recursive predicate to find possible paths.
-possible_path(_, X, Y, X, Y, 0, Path, Path).
-possible_path(_, X, Y, X, Y, 1, Path, Path).
-possible_path(_, X, Y, X, Y, 2, Path, Path).
-possible_path(GameState, X, Y, ToRow, ToCol, Possible, CurrentPath, Path) :-
+possible_path(_, X, Y, X, Y, 0, Path, Path, Player).
+possible_path(_, X, Y, X, Y, 1, Path, Path, Player).
+possible_path(_, X, Y, X, Y, 2, Path, Path, Player).
+possible_path(GameState, X, Y, ToRow, ToCol, Possible, CurrentPath, Path, Player) :-
     Possible > 0,
     next_position((X, Y), (X1, Y1)), % Get the next position
     valid_position(X1, Y1), % Check if it's a valid position
-    %((X1 = ToRow, Y1 = ToCol) -> append(CurrentPath, [(X1, Y1)], NewPath); true),
+
+    %trace,
+    % Check for enemy pieces in the corresponding top/bottom left/right squares
+    ((X1 =:= (X-1), Y1 =:= (Y - 1)) -> (check_diagonal(GameState, X, Y, -1, -1, Player)), write('woohoo')
+    ; (X1 =:= (X+1), Y1 =:= (Y + 1)) -> (check_diagonal(GameState, X, Y, 1, 1, Player)), write('woohoo')
+    ; (X1 =:= (X+1), Y1 =:= (Y - 1)) -> (check_diagonal(GameState, X, Y, 1, -1, Player)), write('woohoo')
+    ; (X1 =:= (X-1), Y1 =:= (Y + 1)) -> (check_diagonal(GameState, X, Y, -1, 1, Player)), write('woohoo')
+    ; true),
+    %notrace,
+
     nth1(X1, GameState, Row),
-    %nth1(Y1, Row, empty),
     (
         Possible > 1 -> 
         ((nth1(Y1, Row, empty)) ; (X1 = ToRow, Y1 = ToCol))
@@ -268,7 +276,7 @@ possible_path(GameState, X, Y, ToRow, ToCol, Possible, CurrentPath, Path) :-
     ), % Check if it's an empty space
     NewPossible is Possible - 1,
     append(CurrentPath, [(X1, Y1)], NewPath),
-    possible_path(GameState, X1, Y1, ToRow, ToCol, NewPossible, NewPath, Path).
+    possible_path(GameState, X1, Y1, ToRow, ToCol, NewPossible, NewPath, Path, Player).
 
 % Retreat positions for the black player
 retreat_positions(black, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
@@ -364,3 +372,24 @@ remove_empty_lists([[] | Rest], Result) :-
 remove_empty_lists([X | Rest], [X | Result]) :-
     X \= [],
     remove_empty_lists(Rest, Result).
+
+
+check_diagonal(GameState, X, Y, OffsetX, OffsetY, black):-
+    newX is X+OffsetX,
+    newY is Y+OffsetY,
+    nth1(newX, GameState, RowList1),
+    nth1(Y, RowList1, Piece1),
+    nth1(X, GameState, RowList2),
+    nth1(newY, RowList2, Piece2),
+    write('CHECKING DIAGONAL'),
+    ((Piece1 = black(_) ; Piece1 = empty) ; (Piece2 = black(_) ; Piece2 = empty)).
+
+check_diagonal(GameState, X, Y, OffsetX, OffsetY, red):-
+    newX is X+OffsetX,
+    newY is Y+OffsetY,
+    nth1(newX, GameState, RowList1),
+    nth1(Y, RowList1, Piece1),
+    nth1(X, GameState, RowList2),
+    nth1(newY, RowList2, Piece2),
+    write('CHECKING DIAGONAL'),
+    ((Piece1 = red(_) ; Piece1 = empty) ; (Piece2 = red(_) ; Piece2 = empty)).
