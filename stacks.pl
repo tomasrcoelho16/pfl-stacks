@@ -90,14 +90,6 @@ handle_menu_option(_) :- % Handle invalid input
 start_human_vs_human_game :-
     write('yoo'),
     play_game.
-    %initial_state(GameState),
-    %display_board(GameState),
-    %sum_red_pieces(GameState, SumRedTotal),
-    %write('Total reds: '),
-    %write(SumRedTotal).
-    %sum_black_pieces_first_line(Board, Sum),
-    %write(Sum),
-    %write('teste'),
 
 
 start_human_vs_bot_game :-
@@ -117,9 +109,6 @@ play_game:-
 
 game_cycle(GameState-Player):-
     game_over(GameState, Winner), !.
-
-:- dynamic to_play/1.
-to_play(true).
 
 game_cycle(GameState-Player):-
     write('CURRENT PLAYER:'),

@@ -61,9 +61,21 @@ calculate_possible(Val, Possible) :-
 
 % Choose move for a human player (select piece and destination)
 choose_move(GameState, Player, Move) :-
-    %display_board(GameState),
     repeat,
-    write('Select a piece (e.g., a1): '),
+    write('Choose one of the turn possibilities:') ,nl,
+    write('1 - Move a single stack.') ,nl,
+    write('2 - Move two individual pieces up to 2 spaces each.'),nl,
+    read(Input),
+    (
+        (Input =:= 1, single_move(GameState,Player,Move));
+        (Input =:= 2, double_move(GameState,Player, Move));
+        write('Thats not a valid option.'), nl, fail
+    )
+    .
+
+single_move(GameState,Player, Move) :-
+    repeat,
+    write('Select a piece or stack (e.g., a1): '),
     read(FromInput),
 
     user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
@@ -134,6 +146,138 @@ choose_move(GameState, Player, Move) :-
     To = (ToRow, ToCol),
     Move = (From, To, PieceFrom, PieceTo)
     .
+double_move(GameState,Player, Move) :-
+    repeat,
+    write('Select the first piece (e.g., a1): '),
+    read(FromInput),
+
+    user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
+
+    nth1(FromRow, GameState, Row),
+    nth1(FromCol, Row, Piece),
+
+    ( (Player = black, Piece = black(_)) ;
+      (Player = red, Piece = red(_)) ),
+
+    piece_value(Piece, Val),
+
+    (((FromRow =\= 1, Player = black);
+     (FromRow =\= 7, Player = red) -> true);
+     (write('That is not allowed.'), nl, fail)          % NAO FAZ SENTIDO SEU FILHO DA PUTA
+    ),
+
+    write('Select a destination (e.g., b2): '),
+    read(ToInput),      % Read the coordinate for the destination
+
+    % ATAUQE COMBINADO GOES HERE
+
+    user_input_to_coordinates(ToInput, (ToRow, ToCol)),
+
+    (abs(FromRow - ToRow) =< 2, abs(FromCol - ToCol) =< 2),
+
+    nth1(ToRow, GameState, RowEnemy),
+    nth1(ToCol, RowEnemy, PieceEnemy),
+    piece_value(PieceEnemy, ValEnemy),
+
+    (
+        (Player = black, PieceEnemy = black(_), (1+ValEnemy) =< 4,    
+        NewValue is 1 + ValEnemy,
+        PieceTo = black(NewValue),
+        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-1))
+        ) ;
+        (Player = red, PieceEnemy = red(_), (1+ValEnemy) =< 4,
+        NewValue is 1 + ValEnemy,
+        PieceTo = red(NewValue),
+        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = red(Val-1))
+        ) ;
+        (Player = red, PieceEnemy = empty, (1 > ValEnemy),
+         NewValue is 1,
+         PieceTo = red(1),
+        ((1 =:= Val -> PieceFrom = empty; PieceFrom = red(Val-1)))
+         ) ;
+      (Player = black, PieceEnemy = empty, (1 > ValEnemy),
+        NewValue is 1,
+        PieceTo = black(1),
+        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-1))
+        )
+    ),
+    find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, 2, Paths, Player),
+    (Paths \= []),
+    write('Paths: '),
+    write(Paths), nl,
+
+    From = (FromRow, FromCol),
+    To = (ToRow, ToCol),
+    Move = (From, To, PieceFrom, PieceTo),
+    move(GameState, Move, NewGameState),
+
+    repeat,
+    display_board(NewGameState),
+    write('CURRENT PLAYER: '),
+    write(Player),nl,
+    write('Select the second piece (e.g., a1): '),
+    read(FromInput),
+
+    user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
+
+    nth1(FromRow, NewGameState, Row),
+    nth1(FromCol, Row, Piece),
+
+    ( (Player = black, Piece = black(_)) ;
+      (Player = red, Piece = red(_)) ),
+
+    piece_value(Piece, Val),
+
+    (((FromRow =\= 1, Player = black);
+     (FromRow =\= 7, Player = red) -> true);
+     (write('That is not allowed.'), nl, fail)          % NAO FAZ SENTIDO SEU FILHO DA PUTA
+    ),
+
+    write('Select a destination (e.g., b2): '),
+    read(ToInput),      % Read the coordinate for the destination
+
+    % ATAUQE COMBINADO GOES HERE
+
+    user_input_to_coordinates(ToInput, (ToRow, ToCol)),
+
+    (abs(FromRow - ToRow) =< 2, abs(FromCol - ToCol) =< 2),
+
+    nth1(ToRow, NewGameState, RowEnemy),
+    nth1(ToCol, RowEnemy, PieceEnemy),
+    piece_value(PieceEnemy, ValEnemy),
+
+    (
+        (Player = black, PieceEnemy = black(_), (1+ValEnemy) =< 4,    
+        NewValue is 1 + ValEnemy,
+        PieceTo = black(NewValue),
+        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-1))
+        ) ;
+        (Player = red, PieceEnemy = red(_), (1+ValEnemy) =< 4,
+        NewValue is 1 + ValEnemy,
+        PieceTo = red(NewValue),
+        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = red(Val-1))
+        ) ;
+        (Player = red, PieceEnemy = empty, (1 > ValEnemy),
+         NewValue is 1,
+         PieceTo = red(1),
+        ((1 =:= Val -> PieceFrom = empty; PieceFrom = red(Val-1)))
+         ) ;
+      (Player = black, PieceEnemy = empty, (1 > ValEnemy),
+        NewValue is 1,
+        PieceTo = black(1),
+        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-1))
+        )
+    ),
+    find_possible_paths(NewGameState, FromRow, FromCol, ToRow, ToCol, 2, Paths, Player),
+    (Paths \= []),
+    write('Paths: '),
+    write(Paths), nl,
+
+    From = (FromRow, FromCol),
+    To = (ToRow, ToCol),
+    Move = (From, To, PieceFrom, PieceTo)
+    .
+
 
 % para o bot
 %choose_move(GameState, computer-Level, Move):-
