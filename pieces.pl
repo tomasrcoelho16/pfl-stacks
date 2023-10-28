@@ -68,7 +68,7 @@ choose_move(GameState, Player, Move) :-
     read(Input),
     (
         (Input =:= 1, single_move(GameState,Player,Move));
-        (Input =:= 2, double_move(GameState,Player, Move));
+        (Input =:= 2, double_move(GameState,Player,Move));
         write('Thats not a valid option.'), nl, fail
     )
     .
@@ -208,74 +208,75 @@ double_move(GameState,Player, Move) :-
 
     From = (FromRow, FromCol),
     To = (ToRow, ToCol),
-    Move = (From, To, PieceFrom, PieceTo),
-    move(GameState, Move, NewGameState),
+    Move2 = (From, To, PieceFrom, PieceTo),
+    move(GameState, Move2, NewGameState),
 
     repeat,
+
     display_board(NewGameState),
     write('CURRENT PLAYER: '),
     write(Player),nl,
     write('Select the second piece (e.g., a1): '),
-    read(FromInput),
+    read(FromInput2),
 
-    user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
+    user_input_to_coordinates(FromInput2, (FromRow2, FromCol2)), 
 
-    nth1(FromRow, NewGameState, Row),
-    nth1(FromCol, Row, Piece),
+    nth1(FromRow2, NewGameState, Row2),
+    nth1(FromCol2, Row2, Piece2),
 
-    ( (Player = black, Piece = black(_)) ;
-      (Player = red, Piece = red(_)) ),
+    ( (Player = black, Piece2 = black(_)) ;
+      (Player = red, Piece2 = red(_)) ),
 
-    piece_value(Piece, Val),
+    piece_value(Piece2, Val2),
 
-    (((FromRow =\= 1, Player = black);
-     (FromRow =\= 7, Player = red) -> true);
+    (((FromRow2 =\= 1, Player = black);
+     (FromRow2 =\= 7, Player = red) -> true);
      (write('That is not allowed.'), nl, fail)          % NAO FAZ SENTIDO SEU FILHO DA PUTA
     ),
 
     write('Select a destination (e.g., b2): '),
-    read(ToInput),      % Read the coordinate for the destination
+    read(ToInput2),      % Read the coordinate for the destination
 
     % ATAUQE COMBINADO GOES HERE
 
-    user_input_to_coordinates(ToInput, (ToRow, ToCol)),
+    user_input_to_coordinates(ToInput2, (ToRow2, ToCol2)),
 
-    (abs(FromRow - ToRow) =< 2, abs(FromCol - ToCol) =< 2),
+    (abs(FromRow2 - ToRow2) =< 2, abs(FromCol2 - ToCol2) =< 2),
 
-    nth1(ToRow, NewGameState, RowEnemy),
-    nth1(ToCol, RowEnemy, PieceEnemy),
-    piece_value(PieceEnemy, ValEnemy),
+    nth1(ToRow2, NewGameState, RowEnemy2),
+    nth1(ToCol2, RowEnemy, PieceEnemy2),
+    piece_value(PieceEnemy2, ValEnemy2),
 
     (
-        (Player = black, PieceEnemy = black(_), (1+ValEnemy) =< 4,    
-        NewValue is 1 + ValEnemy,
-        PieceTo = black(NewValue),
-        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-1))
+        (Player = black, PieceEnemy2 = black(_), (1+ValEnemy2) =< 4,    
+        NewValue2 is 1 + ValEnemy2,
+        PieceTo2 = black(NewValue2),
+        ((1 - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = black(Val2-1))
         ) ;
-        (Player = red, PieceEnemy = red(_), (1+ValEnemy) =< 4,
-        NewValue is 1 + ValEnemy,
-        PieceTo = red(NewValue),
-        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = red(Val-1))
+        (Player = red, PieceEnemy2 = red(_), (1+ValEnemy2) =< 4,
+        NewValue2 is 1 + ValEnemy2,
+        PieceTo2 = red(NewValue2),
+        ((1 - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = red(Val2-1))
         ) ;
-        (Player = red, PieceEnemy = empty, (1 > ValEnemy),
-         NewValue is 1,
-         PieceTo = red(1),
-        ((1 =:= Val -> PieceFrom = empty; PieceFrom = red(Val-1)))
+        (Player = red, PieceEnemy2 = empty, (1 > ValEnemy2),
+         NewValue2 is 1,
+         PieceTo2 = red(1),
+        ((1 =:= Val2 -> PieceFrom2 = empty; PieceFrom2 = red(Val2-1)))
          ) ;
-      (Player = black, PieceEnemy = empty, (1 > ValEnemy),
-        NewValue is 1,
-        PieceTo = black(1),
-        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-1))
+      (Player = black, PieceEnemy2 = empty, (1 > ValEnemy2),
+        NewValue2 is 1,
+        PieceTo2 = black(1),
+        ((1 - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = black(Val2-1))
         )
     ),
-    find_possible_paths(NewGameState, FromRow, FromCol, ToRow, ToCol, 2, Paths, Player),
-    (Paths \= []),
+    find_possible_paths(NewGameState, FromRow2, FromCol2, ToRow2, ToCol2, 2, Paths2, Player),
+    (Paths2 \= []),
     write('Paths: '),
-    write(Paths), nl,
-
-    From = (FromRow, FromCol),
-    To = (ToRow, ToCol),
-    Move = (From, To, PieceFrom, PieceTo)
+    write(Paths2), nl,
+    GameState = NewGameState,
+    From2 = (FromRow2, FromCol2),
+    To2 = (ToRow2, ToCol2),
+    Move = (From2, To2, PieceFrom2, PieceTo2)
     .
 
 
