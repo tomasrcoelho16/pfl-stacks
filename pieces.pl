@@ -8,9 +8,9 @@ initial_state([
     [red(3), black(1), red(2), red(4), red(2)],
     [empty, empty, empty, empty, empty],
     [empty, red(1), empty, empty, empty],
-    [red(1), empty, empty, empty, empty],
-    [empty, black(1), empty, empty, empty],
-    [empty, empty, empty, empty, empty],
+    [red(1), red(1), empty, empty, empty],
+    [empty, empty, red(2), empty, empty],
+    [empty, empty, black(3), empty, empty],
     [black(3), black(1), black(1), black(2), black(2)]
 ]).
 
@@ -66,6 +66,8 @@ choose_move(GameState, Player, Move) :-
     write('Select a piece (e.g., a1): '),
     read(FromInput),
 
+    user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
+
     nth1(FromRow, GameState, Row),
     nth1(FromCol, Row, Piece),
 
@@ -73,8 +75,6 @@ choose_move(GameState, Player, Move) :-
       (Player = red, Piece = red(_)) ),
 
     piece_value(Piece, Val),
-    
-    user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
 
     (((FromRow =\= 1, Player = black);
      (FromRow =\= 7, Player = red) -> true);
@@ -83,6 +83,8 @@ choose_move(GameState, Player, Move) :-
 
     write('Select a destination (e.g., b2): '),
     read(ToInput),      % Read the coordinate for the destination
+
+    % ATAUQE COMBINADO GOES HERE
 
     user_input_to_coordinates(ToInput, (ToRow, ToCol)),
 
@@ -187,11 +189,14 @@ move(GameState, Move, NewGameState) :-
 
         retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
         remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
+        repeat,
         write('Choose a position to retreat the piece to: (  '),
         write_retreat(RetreatPositionsFixed),
         write(')'), nl,
-
-        replace(GameState, ToRow - 1, ToCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0) 
+        read(RetreatInput),
+        user_input_to_coordinates(RetreatInput, (RetreatRow, RetreatCol)),
+        member([RetreatRow, RetreatCol], RetreatPositionsFixed),
+        replace(GameState, RetreatRow, RetreatCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0) 
          
          );
          GameState0 = GameState
