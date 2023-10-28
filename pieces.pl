@@ -217,11 +217,11 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     repeat,
     write('CURRENT PLAYER: '),
     write(Player),nl,
-    write('Select the second piece (e.g., a1): '),
+    write('Select the second piece, you cannot move the same piece again(e.g., a1): '),
     read(FromInput2),
 
     user_input_to_coordinates(FromInput2, (FromRow2, FromCol2)), 
-
+    (ToRow =\= FromRow2; ToCol =\= FromCol2),
     nth1(FromRow2, TwoMovesGamestate, Row2),
     nth1(FromCol2, Row2, Piece2),
 
@@ -241,7 +241,6 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     % ATAUQE COMBINADO GOES HERE
     
     user_input_to_coordinates(ToInput2, (ToRow2, ToCol2)),
-
     (abs(FromRow2 - ToRow2) =< 2, abs(FromCol2 - ToCol2) =< 2),
 
     nth1(ToRow2, TwoMovesGamestate, RowEnemy2),
