@@ -545,9 +545,10 @@ adjacent(X, Y, AdjacentX, AdjacentY) :-
     AdjacentX is X + 1, AdjacentY is Y + 1.  % Bottom-right
 
 % Find adjacent pieces to a given position (X, Y) on the game board.
-find_adjacent_pieces(GameState, X, Y, AdjacentPieces) :-
+find_adjacent_pieces(GameState, Player, X, Y, AdjacentPieces) :-
     findall([Piece-(AdjX,AdjY) ], (
         adjacent(X, Y, AdjX, AdjY),
         nth1(AdjX, GameState, Row),
-        nth1(AdjY, Row, Piece)
+        nth1(AdjY, Row, Piece),
+        ((Player = black, Piece = black(_));(Player = red, Piece = red(_)))
     ), AdjacentPieces).
