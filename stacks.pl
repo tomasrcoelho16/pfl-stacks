@@ -101,11 +101,6 @@ start_human_vs_human_game :-
 
 
 start_human_vs_bot_game :-
-    initial_state(GameState),
-    display_board(GameState),
-    choose_move(GameState, human, Move),
-    move(GameState, Move, NewGameState),
-    display_board(NewGameState),
     write('Starting Human vs Bot game...\n').
 
 start_bot_vs_bot_game :-

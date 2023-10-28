@@ -256,17 +256,16 @@ possible_path(_, X, Y, X, Y, 1, Path, Path, Player).
 possible_path(_, X, Y, X, Y, 2, Path, Path, Player).
 possible_path(GameState, X, Y, ToRow, ToCol, Possible, CurrentPath, Path, Player) :-
     Possible > 0,
+    %repeat,
     next_position((X, Y), (X1, Y1)), % Get the next position
     valid_position(X1, Y1), % Check if it's a valid position
 
-    %trace,
     % Check for enemy pieces in the corresponding top/bottom left/right squares
-    ((X1 =:= (X-1), Y1 =:= (Y - 1)) -> (check_diagonal(GameState, X, Y, -1, -1, Player)), write('woohoo')
-    ; (X1 =:= (X+1), Y1 =:= (Y + 1)) -> (check_diagonal(GameState, X, Y, 1, 1, Player)), write('woohoo')
-    ; (X1 =:= (X+1), Y1 =:= (Y - 1)) -> (check_diagonal(GameState, X, Y, 1, -1, Player)), write('woohoo')
-    ; (X1 =:= (X-1), Y1 =:= (Y + 1)) -> (check_diagonal(GameState, X, Y, -1, 1, Player)), write('woohoo')
+    ((X1 =:= (X-1), Y1 =:= (Y - 1)) -> (check_diagonal(GameState, X, Y, -1, -1, Player))
+    ; (X1 =:= (X+1), Y1 =:= (Y + 1)) -> (check_diagonal(GameState, X, Y, 1, 1, Player))
+    ; (X1 =:= (X+1), Y1 =:= (Y - 1)) -> (check_diagonal(GameState, X, Y, 1, -1, Player))
+    ; (X1 =:= (X-1), Y1 =:= (Y + 1)) -> (check_diagonal(GameState, X, Y, -1, 1, Player))
     ; true),
-    %notrace,
 
     nth1(X1, GameState, Row),
     (
@@ -375,21 +374,19 @@ remove_empty_lists([X | Rest], [X | Result]) :-
 
 
 check_diagonal(GameState, X, Y, OffsetX, OffsetY, black):-
-    newX is X+OffsetX,
-    newY is Y+OffsetY,
-    nth1(newX, GameState, RowList1),
+    NewX is X+OffsetX,
+    NewY is Y+OffsetY,
+    nth1(NewX, GameState, RowList1),
     nth1(Y, RowList1, Piece1),
     nth1(X, GameState, RowList2),
-    nth1(newY, RowList2, Piece2),
-    write('CHECKING DIAGONAL'),
+    nth1(NewY, RowList2, Piece2),
     ((Piece1 = black(_) ; Piece1 = empty) ; (Piece2 = black(_) ; Piece2 = empty)).
 
 check_diagonal(GameState, X, Y, OffsetX, OffsetY, red):-
-    newX is X+OffsetX,
-    newY is Y+OffsetY,
-    nth1(newX, GameState, RowList1),
+    NewX is X+OffsetX,
+    NewY is Y+OffsetY,
+    nth1(NewX, GameState, RowList1),
     nth1(Y, RowList1, Piece1),
     nth1(X, GameState, RowList2),
-    nth1(newY, RowList2, Piece2),
-    write('CHECKING DIAGONAL'),
+    nth1(NewY, RowList2, Piece2),
     ((Piece1 = red(_) ; Piece1 = empty) ; (Piece2 = red(_) ; Piece2 = empty)).
