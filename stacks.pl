@@ -93,6 +93,10 @@ start_human_vs_human_game :-
 
 
 start_human_vs_bot_game :-
+    initial_state(GameState),
+    display_board(GameState),
+    find_adjacent_pieces(GameState,4,3,AdjacentPieces),
+    write(AdjacentPieces),nl,
     write('Starting Human vs Bot game...\n').
 
 start_bot_vs_bot_game :-

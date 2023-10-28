@@ -498,13 +498,6 @@ retreat_positions(red, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
     ), RetreatPositions3),
     append([RetreatPositions1, RetreatPositions2, RetreatPositions3], RetreatPositions).
 
-
-
-friendly_piece(Player, PieceTo) :-
-    (Player = black, PieceTo = black(_));
-    (Player = red, PieceTo = red(_)).
-
-
 write_retreat([]).
 
 write_retreat([[Row, Col] | Rest]):-
@@ -540,3 +533,21 @@ check_diagonal(GameState, X, Y, OffsetX, OffsetY, red):-
     nth1(X, GameState, RowList2),
     nth1(NewY, RowList2, Piece2),
     ((Piece1 = red(_) ; Piece1 = empty) ; (Piece2 = red(_) ; Piece2 = empty)).
+
+adjacent(X, Y, AdjacentX, AdjacentY) :-
+    AdjacentX is X - 1, AdjacentY is Y - 1;  % Top-left
+    AdjacentX is X - 1, AdjacentY is Y;      % Top
+    AdjacentX is X - 1, AdjacentY is Y + 1;  % Top-right
+    AdjacentX is X,     AdjacentY is Y - 1;  % Left
+    AdjacentX is X,     AdjacentY is Y + 1;  % Right
+    AdjacentX is X + 1, AdjacentY is Y - 1;  % Bottom-left
+    AdjacentX is X + 1, AdjacentY is Y;      % Bottom
+    AdjacentX is X + 1, AdjacentY is Y + 1.  % Bottom-right
+
+% Find adjacent pieces to a given position (X, Y) on the game board.
+find_adjacent_pieces(GameState, X, Y, AdjacentPieces) :-
+    findall([Piece-(AdjX,AdjY) ], (
+        adjacent(X, Y, AdjX, AdjY),
+        nth1(AdjX, GameState, Row),
+        nth1(AdjY, Row, Piece)
+    ), AdjacentPieces).
