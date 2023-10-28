@@ -186,9 +186,10 @@ move(GameState, Move, NewGameState) :-
          EnemyPiece = red(_), (EnemyPieceValue - (PieceToValue - EnemyPieceValue) > 0)) ->
 
         retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
-        remove_empty_lists(RetreatPositions, RetreatPositionsFixed),
-        write('RETREAT:'), nl,
+        remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
+        write('Choose a position to retreat the piece to: (  '),
         write_retreat(RetreatPositionsFixed),
+        write(')'), nl,
 
         replace(GameState, ToRow - 1, ToCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0) 
          
@@ -305,6 +306,42 @@ retreat_positions(black, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
     append([RetreatPositions1, RetreatPositions2, RetreatPositions3], RetreatPositions).
 
 
+% Retreat positions for the black player
+retreat_positions(red, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
+    RetreatRow is ToRow + 1,
+    RetreatCol is ToCol,
+    RetreatColLeft is ToCol - 1,
+    RetreatColRight is ToCol + 1,
+    findall(R, (
+        (valid_position(RetreatRow, RetreatCol), 
+         nth1(RetreatRow, GameState, RetreatRowList),
+         nth1(RetreatCol, RetreatRowList, RetreatSpace),
+         (RetreatSpace = red(_) ; RetreatSpace = empty),
+         piece_value(RetreatSpace, RetreatSpaceValue),
+         (RetreatSpaceValue + NewValue) =< 4
+        ) -> R = [RetreatRow, RetreatCol] ; R = []
+    ), RetreatPositions1),
+    findall(R, (
+        (valid_position(RetreatRow, RetreatColRight), 
+         nth1(RetreatRow, GameState, RetreatRowList),
+         nth1(RetreatColRight, RetreatRowList, RetreatSpace),
+         (RetreatSpace = red(_) ; RetreatSpace = empty),
+         piece_value(RetreatSpace, RetreatSpaceValue),
+         (RetreatSpaceValue + NewValue) =< 4
+        ) -> R = [RetreatRow, RetreatColRight] ; R = []
+    ), RetreatPositions2),
+    findall(R, (
+        (valid_position(RetreatRow, RetreatColLeft), 
+         nth1(RetreatRow, GameState, RetreatRowList),
+         nth1(RetreatColLeft, RetreatRowList, RetreatSpace),
+         (RetreatSpace = red(_) ; RetreatSpace = empty),
+         piece_value(RetreatSpace, RetreatSpaceValue),
+         (RetreatSpaceValue + NewValue) =< 4
+        ) -> R = [RetreatRow, RetreatColLeft] ; R = []
+    ), RetreatPositions3),
+    append([RetreatPositions1, RetreatPositions2, RetreatPositions3], RetreatPositions).
+
+
 
 friendly_piece(Player, PieceTo) :-
     (Player = black, PieceTo = black(_));
@@ -317,7 +354,7 @@ write_retreat([[Row, Col] | Rest]):-
     Code is Col + 96,
     char_code(Char, Code),
     write(Char),
-    write(Row), nl,
+    write(Row), write('  '),
     write_retreat(Rest), !.
 
 
