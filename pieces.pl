@@ -168,11 +168,11 @@ move(GameState, Move, NewGameState) :-
 
     (
         ((PieceTo = red(_),
-         EnemyPiece = black(_), ((PieceToValue - EnemyPieceValue) > 0)) ->
-         replace(GameState, ToRow - 1, ToCol, black(PieceToValue - EnemyPieceValue), GameState0) );
+         EnemyPiece = black(_), (EnemyPieceValue - (PieceToValue - EnemyPieceValue) > 0)) ->
+         replace(GameState, ToRow - 1, ToCol, black(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0) );
          ((PieceTo = black(_),
-         EnemyPiece = red(_), ((PieceToValue - EnemyPieceValue) > 0)) ->
-         replace(GameState, ToRow - 1, ToCol, red(PieceToValue - EnemyPieceValue), GameState0) );
+         EnemyPiece = red(_), (EnemyPieceValue - (PieceToValue - EnemyPieceValue) > 0)) ->
+         replace(GameState, ToRow - 1, ToCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0) );
          GameState0 = GameState
     ),
 
