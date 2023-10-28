@@ -10,7 +10,7 @@ initial_state([
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
-    [red(2), empty, empty, empty, empty],
+    [red(2), red(2), empty, empty, empty],
     [black(3), black(1), black(1), black(2), black(2)]
 ]).
 
@@ -166,13 +166,32 @@ move(GameState, Move, NewGameState) :-
     piece_value(PieceTo, PieceToValue),
     piece_value(EnemyPiece, EnemyPieceValue),
 
+    (PieceTo = red(_) -> Player = red ; Player = black),
+
+    NewValue is (EnemyPieceValue - (PieceToValue - EnemyPieceValue)),
+
+
+
     (
         ((PieceTo = red(_),
          EnemyPiece = black(_), (EnemyPieceValue - (PieceToValue - EnemyPieceValue) > 0)) ->
-         replace(GameState, ToRow - 1, ToCol, black(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0) );
+
+        
+
+         replace(GameState, ToRow - 1, ToCol, black(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0) 
+         
+         
+         );
          ((PieceTo = black(_),
          EnemyPiece = red(_), (EnemyPieceValue - (PieceToValue - EnemyPieceValue) > 0)) ->
-         replace(GameState, ToRow - 1, ToCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0) );
+
+        retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
+        remove_empty_lists(RetreatPositions, RetreatPositionsFixed),
+        write('RETREAT:'), nl,
+        write_retreat(RetreatPositionsFixed),
+         replace(GameState, ToRow - 1, ToCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0) 
+         
+         );
          GameState0 = GameState
     ),
 
@@ -248,3 +267,63 @@ possible_path(GameState, X, Y, ToRow, ToCol, Possible, CurrentPath, Path) :-
     NewPossible is Possible - 1,
     append(CurrentPath, [(X1, Y1)], NewPath),
     possible_path(GameState, X1, Y1, ToRow, ToCol, NewPossible, NewPath, Path).
+
+% Retreat positions for the black player
+retreat_positions(black, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
+    RetreatRow is ToRow - 1,
+    RetreatCol is ToCol,
+    RetreatColLeft is ToCol - 1,
+    RetreatColRight is ToCol + 1,
+    findall(R, (
+        (valid_position(RetreatRow, RetreatCol), 
+         nth1(RetreatRow, GameState, RetreatRowList),
+         nth1(RetreatCol, RetreatRowList, RetreatSpace),
+         (RetreatSpace = black(_) ; RetreatSpace = empty),
+         piece_value(RetreatSpace, RetreatSpaceValue),
+         (RetreatSpaceValue + NewValue) =< 4
+        ) -> R = [RetreatRow, RetreatCol] ; R = []
+    ), RetreatPositions1),
+    findall(R, (
+        (valid_position(RetreatRow, RetreatColRight), 
+         nth1(RetreatRow, GameState, RetreatRowList),
+         nth1(RetreatColRight, RetreatRowList, RetreatSpace),
+         (RetreatSpace = black(_) ; RetreatSpace = empty),
+         piece_value(RetreatSpace, RetreatSpaceValue),
+         (RetreatSpaceValue + NewValue) =< 4
+        ) -> R = [RetreatRow, RetreatColRight] ; R = []
+    ), RetreatPositions2),
+    findall(R, (
+        (valid_position(RetreatRow, RetreatColLeft), 
+         nth1(RetreatRow, GameState, RetreatRowList),
+         nth1(RetreatColLeft, RetreatRowList, RetreatSpace),
+         (RetreatSpace = black(_) ; RetreatSpace = empty),
+         piece_value(RetreatSpace, RetreatSpaceValue),
+         (RetreatSpaceValue + NewValue) =< 4
+        ) -> R = [RetreatRow, RetreatColLeft] ; R = []
+    ), RetreatPositions3),
+    append([RetreatPositions1, RetreatPositions2, RetreatPositions3], RetreatPositions).
+
+
+
+friendly_piece(Player, PieceTo) :-
+    (Player = black, PieceTo = black(_));
+    (Player = red, PieceTo = red(_)).
+
+
+write_retreat([], _).
+write_retreat([[Row, Col] | Rest]):-
+    char_code('a', A),
+    Column is A + Col - 1,
+    char_code(ColChar, Col),
+    ColumnLetter is ColCode + 96
+    write(ColumnLetter),
+    write(Row), nl,
+    write_retreat(Rest).
+
+
+remove_empty_lists([], []).
+remove_empty_lists([[] | Rest], Result) :- 
+    remove_empty_lists(Rest, Result).
+remove_empty_lists([X | Rest], [X | Result]) :-
+    X \= [],
+    remove_empty_lists(Rest, Result).
