@@ -6,7 +6,7 @@
 
 initial_state([
     [red(3), black(1), red(2), red(4), red(2)],
-    [empty, empty, empty, empty, empty],
+    [empty, empty, black(3), red(1), empty],
     [empty, red(1), empty, empty, empty],
     [red(1), red(1), empty, empty, empty],
     [empty, empty, red(2), empty, empty],
@@ -103,10 +103,6 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     (((Val > 1) -> write('How many pieces do you want (e.g., 1, 2, 3, 4): '), read(NPiecesInput)); NPiecesInput = 1),
 
     (NPiecesInput =< Val),
-
-    ((ToRow =\= 1, Player = black);
-     (ToRow =\= 7, Player = red)
-    ),
 
     calculate_possible(NPiecesInput, Possible),
     (abs(FromRow - ToRow) =< Possible, abs(FromCol - ToCol) =< Possible),
