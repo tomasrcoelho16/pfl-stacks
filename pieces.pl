@@ -60,20 +60,20 @@ calculate_possible(Val, Possible) :-
     Possible is 4 - Val.
 
 % Choose move for a human player (select piece and destination)
-choose_move(GameState, Player, Move) :-
+choose_move(GameState, Player, Move, TwoMovesGamestate) :-
     repeat,
     write('Choose one of the turn possibilities:') ,nl,
     write('1 - Move a single stack.') ,nl,
     write('2 - Move two individual pieces up to 2 spaces each.'),nl,
     read(Input),
     (
-        (Input =:= 1, single_move(GameState,Player,Move));
-        (Input =:= 2, double_move(GameState,Player,Move));
+        (Input =:= 1, single_move(GameState,Player,Move, TwoMovesGamestate));
+        (Input =:= 2, double_move(GameState,Player,Move, TwoMovesGamestate));
         write('Thats not a valid option.'), nl, fail
     )
     .
 
-single_move(GameState,Player, Move) :-
+single_move(GameState,Player, Move, TwoMovesGamestate) :-
     repeat,
     write('Select a piece or stack (e.g., a1): '),
     read(FromInput),
@@ -144,9 +144,10 @@ single_move(GameState,Player, Move) :-
 
     From = (FromRow, FromCol),
     To = (ToRow, ToCol),
-    Move = (From, To, PieceFrom, PieceTo)
+    Move = (From, To, PieceFrom, PieceTo),
+    TwoMovesGamestate = GameState
     .
-double_move(GameState,Player, Move) :-
+double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     repeat,
     write('Select the first piece (e.g., a1): '),
     read(FromInput),
@@ -208,12 +209,12 @@ double_move(GameState,Player, Move) :-
 
     From = (FromRow, FromCol),
     To = (ToRow, ToCol),
-    Move2 = (From, To, PieceFrom, PieceTo),
-    move(GameState, Move2, NewGameState),
+    Move = (From, To, PieceFrom, PieceTo),
+    move(GameState, Move, TwoMovesGamestate),
 
     repeat,
 
-    display_board(NewGameState),
+    display_board(TwoMovesGamestate),
     write('CURRENT PLAYER: '),
     write(Player),nl,
     write('Select the second piece (e.g., a1): '),
@@ -221,7 +222,7 @@ double_move(GameState,Player, Move) :-
 
     user_input_to_coordinates(FromInput2, (FromRow2, FromCol2)), 
 
-    nth1(FromRow2, NewGameState, Row2),
+    nth1(FromRow2, TwoMovesGamestate, Row2),
     nth1(FromCol2, Row2, Piece2),
 
     ( (Player = black, Piece2 = black(_)) ;
@@ -238,12 +239,12 @@ double_move(GameState,Player, Move) :-
     read(ToInput2),      % Read the coordinate for the destination
 
     % ATAUQE COMBINADO GOES HERE
-
+    
     user_input_to_coordinates(ToInput2, (ToRow2, ToCol2)),
 
     (abs(FromRow2 - ToRow2) =< 2, abs(FromCol2 - ToCol2) =< 2),
 
-    nth1(ToRow2, NewGameState, RowEnemy2),
+    nth1(ToRow2, TwoMovesGamestate, RowEnemy2),
     nth1(ToCol2, RowEnemy, PieceEnemy2),
     piece_value(PieceEnemy2, ValEnemy2),
 
@@ -269,14 +270,14 @@ double_move(GameState,Player, Move) :-
         ((1 - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = black(Val2-1))
         )
     ),
-    find_possible_paths(NewGameState, FromRow2, FromCol2, ToRow2, ToCol2, 2, Paths2, Player),
+    find_possible_paths(TwoMovesGamestate, FromRow2, FromCol2, ToRow2, ToCol2, 2, Paths2, Player),
     (Paths2 \= []),
     write('Paths: '),
     write(Paths2), nl,
-    GameState = NewGameState,
+    %GameState = GameState2,
     From2 = (FromRow2, FromCol2),
     To2 = (ToRow2, ToCol2),
-    Move = (From2, To2, PieceFrom2, PieceTo2)
+    Move2 = (From2, To2, PieceFrom2, PieceTo2)
     .
 
 

@@ -113,8 +113,8 @@ game_cycle(GameState-Player):-
 game_cycle(GameState-Player):-
     write('CURRENT PLAYER:'),
     write(Player), nl,
-    choose_move(GameState, Player, Move),
-    move(GameState, Move, NewGameState),
+    choose_move(GameState, Player, Move, TwoMovesGamestate),
+    move(TwoMovesGamestate, Move, NewGameState),
     next_player(Player, NextPlayer),
     display_board(NewGameState),
     !,
