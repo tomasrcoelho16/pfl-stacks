@@ -189,6 +189,7 @@ move(GameState, Move, NewGameState) :-
         remove_empty_lists(RetreatPositions, RetreatPositionsFixed),
         write('RETREAT:'), nl,
         write_retreat(RetreatPositionsFixed),
+
         replace(GameState, ToRow - 1, ToCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0) 
          
          );
@@ -310,14 +311,14 @@ friendly_piece(Player, PieceTo) :-
     (Player = red, PieceTo = red(_)).
 
 
-write_retreat([[],_]).
+write_retreat([]).
+
 write_retreat([[Row, Col] | Rest]):-
     Code is Col + 96,
     char_code(Char, Code),
     write(Char),
     write(Row), nl,
-    write(Rest),
-    write_retreat(Rest).
+    write_retreat(Rest), !.
 
 
 remove_empty_lists([], []).
