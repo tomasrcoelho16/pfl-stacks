@@ -8,7 +8,7 @@ initial_state([
     [red(3), black(1), red(2), red(4), red(2)],
     [empty, empty, black(3), red(1), empty],
     [empty, black(1), empty, black(1), empty],
-    [empty, empty, red(2), empty, empty],
+    [empty, empty, red(2), black(1), empty],
     [empty, black(1), black(1), black(1), empty],
     [empty, empty, empty, black(1), empty],
     [black(3), empty, black(1), empty, black(2)]

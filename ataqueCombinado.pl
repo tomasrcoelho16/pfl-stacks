@@ -11,6 +11,7 @@ is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths
     write('Possible Combinations:'), nl,
     write(PossibleCombinations), nl,
     PossibleCombinations \= [],
+    repeat,
     write('You can combine your attack! Do you want to? (yes/no)'), nl,
 
     %read user input, if yes, do the things after, if no, (; true)
@@ -31,7 +32,35 @@ is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths
         read(SelectedPosition),
         read_position(FriendlyOptionsCleaned, SelectedPosition, OtherPieces),
         write('You selected: '), write(SelectedPosition), nl,
-        write('You selected from these groups: '), write(OtherPieces)
+        user_input_to_coordinates(SelectedPosition, (SelPosRow, SelPosCol)),
+        nth1(SelPosRow, GameState, Row2),
+        nth1(SelPosCol, Row2, PieceSelected),
+        piece_value(PieceSelected, ValSelected),
+        ValSelected + Val =< 4,
+        max_list_length(OtherPieces, MaxLength),
+        (MaxLength > 1 -> write('Want to combine another one? Select from these groups: '), write(OtherPieces), write(' - or "no".'),
+            read_position(OtherPieces, SelectedPosition2, OtherPieces2),
+            user_input_to_coordinates(SelectedPosition2, (SelPosRow2, SelPosCol2)),
+            nth1(SelPosRow2, GameState, Row22),
+            nth1(SelPosCol2, Row22, PieceSelected2),
+            piece_value(PieceSelected2, ValSelected2),
+            Skrt is ValSelected2 + Val + ValSelected,
+            write(Skrt),
+            ValSelected2 + Val + ValSelected =< 4,
+            max_list_length(OtherPieces2, MaxLength2)
+        ; true
+        ),
+        (MaxLength2 > 2 -> write('Want to combine another one? Select from these groups: '), write(OtherPieces2), write(' - or "no2".'),
+            read_position(OtherPieces2, SelectedPosition3, OtherPieces3),
+            user_input_to_coordinates(SelectedPosition3, (SelPosRow3, SelPosCol3)),
+            nth1(SelPosRow3, GameState, Row23),
+            nth1(SelPosCol3, Row23, PieceSelected3),
+            piece_value(PieceSelected3, ValSelected3),
+            Skrt2 is ValSelected2 + Val + ValSelected + ValSelected3,
+            write(Skrt2),
+            ValSelected2 + Val + ValSelected + ValSelected3 =< 4
+        ; true
+        )
         % Separate pieces based on the list
         %separate_pieces_by_list(SelectedPosition, FriendlyOptionsCleaned, SameListPieces, DifferentListPieces),
         %write('Same List Pieces: '), write(SameListPieces), nl,
@@ -198,3 +227,12 @@ find_pieces_in_different_lists(SelectedPosition, [List | Rest], DifferentListPie
     ; append(List, RestDifferentListPieces, DifferentListPieces),
       find_pieces_in_different_lists(SelectedPosition, Rest, RestDifferentListPieces)
     ).
+
+max_list_length(Lists, MaxLength) :-
+    max_list_length(Lists, 0, MaxLength).
+
+max_list_length([], MaxLength, MaxLength).
+max_list_length([L|Rest], CurrentMaxLength, MaxLength) :-
+    length(L, Length),
+    NewMaxLength is max(CurrentMaxLength, Length),
+    max_list_length(Rest, NewMaxLength, MaxLength).
