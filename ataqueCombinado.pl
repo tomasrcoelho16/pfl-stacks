@@ -1,4 +1,5 @@
 is_possible_combinateds(GameState, Player,Val,NewVal,AdjacentPieces, FromRow, FromCol, ToRow, ToCol, Paths, GameStateCombinated):-
+    find_adjacent_pieces(GameState,Player,ToRow,ToCol,AdjacentPieces),  
     write('AdjacentPieces'), nl,
     write(AdjacentPieces), nl,
     save_coordinates(Paths, PenultimeCoordinates, FromRow, FromCol), nl,
@@ -29,8 +30,10 @@ is_possible_combinateds(GameState, Player,Val,NewVal,AdjacentPieces, FromRow, Fr
         nth1(SelPosRow, GameState, Row2),
         nth1(SelPosCol, Row2, PieceSelected),
         piece_value(PieceSelected, ValSelected),
-        ValSelected + Val =< 4,
         Skrt is Val + ValSelected,
+        write('Writing Skrt:'),
+        write(Skrt), nl,
+        ValSelected + Val =< 4,
         max_list_length(OtherPieces, MaxLength),
         replace(GameState, SelPosRow, SelPosCol, empty, TempGameState),
         (MaxLength > 1 -> write('Want to combine another one? Select from these groups: '), write(OtherPieces), write(' - or "no".'),
@@ -47,7 +50,7 @@ is_possible_combinateds(GameState, Player,Val,NewVal,AdjacentPieces, FromRow, Fr
             write(Skrt2),nl,
             max_list_length(OtherPieces2, MaxLength2),
             replace(TempGameState, SelPosRow2, SelPosCol2, empty, NewTempGameState)) ; MaxLength2 = 0, true) 
-            ; true
+            ; MaxLength2 = 0,true
         ),
         (MaxLength2 > 2 -> write('Want to combine another one? Select from these groups: '), write(OtherPieces2), write(' - or "no".'),
             read(SelectedPosition3),

@@ -114,8 +114,7 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player),
     (Paths \= []),
     find_adjacent_pieces(GameState,Player,ToRow,ToCol,AdjacentPieces),
-    length(AdjacentPieces, Len),
-    (((Player = black, PieceEnemy = red(_), Len > 1) ; (Player = red, PieceEnemy = black(_), Len > 1)) -> is_possible_combinateds(GameState, Player,NPiecesInput, NewVal,AdjacentPieces, FromRow, FromCol, ToRow, ToCol, Paths, GameStateCombinated)
+    (((Player = black, PieceEnemy = red(_), AdjacentPieces \= [[Piece-(FromRow,FromCol)]]) ; (Player = red, PieceEnemy = black(_), AdjacentPieces \= [[Piece-(FromRow,FromCol)]])) -> is_possible_combinateds(GameState, Player,NPiecesInput, NewVal,AdjacentPieces, FromRow, FromCol, ToRow, ToCol, Paths, GameStateCombinated)
      ;
     true ),
     (
@@ -221,7 +220,7 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
 
     user_input_to_coordinates(FromInput2, (FromRow2, FromCol2)), 
     (ToRow =\= FromRow2; ToCol =\= FromCol2),
-    nth1(FromRow2, TwoMovesGamestate, Row2),
+    nth1(FromRow2, TempGameState, Row2),
     nth1(FromCol2, Row2, Piece2),
 
     ( (Player = black, Piece2 = black(_)) ;
@@ -236,8 +235,6 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     write('Select a destination (e.g., b2): '),
     read(ToInput2),      % Read the coordinate for the destination
 
-    % ATAUQE COMBINADO GOES HERE
-    
     user_input_to_coordinates(ToInput2, (ToRow2, ToCol2)),
     (abs(FromRow2 - ToRow2) =< 2, abs(FromCol2 - ToCol2) =< 2),
 
@@ -246,10 +243,8 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     piece_value(PieceEnemy2, ValEnemy2),
 
     find_possible_paths(TempGameState, FromRow2, FromCol2, ToRow2, ToCol2, 2, Paths2, Player),
-    (Paths2 \= []),
-    find_adjacent_pieces(TempGameState,Player,ToRow,ToCol,AdjacentPieces),
-    length(AdjacentPieces, Len),
-    (((Player = black, PieceEnemy = red(_), Len > 1) ; (Player = red, PieceEnemy = black(_), Len > 1)) -> is_possible_combinateds(TempGameState, Player,1, NewVal,AdjacentPieces, FromRow2, FromCol2, ToRow2, ToCol2, Paths2, GameStateCombinated)
+    find_adjacent_pieces(TempGameState,Player,ToRow2,ToCol2,AdjacentPieces),
+    (((Player = black, PieceEnemy2 = red(_), AdjacentPieces \= [[Piece2-(FromRow2,FromCol2)]]) ; (Player = red, PieceEnemy2 = black(_), AdjacentPieces \= [[Piece2-(FromRow2,FromCol2)]])) -> is_possible_combinateds(TempGameState, Player,1, NewVal,AdjacentPieces, FromRow2, FromCol2, ToRow2, ToCol2, Paths2, GameStateCombinated)
      ;
     true ),
     (
@@ -270,12 +265,12 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
         (Player = red, (PieceEnemy2 = empty; PieceEnemy2 = black(_)), (Yoo > ValEnemy2),
          NewValue2 is Yoo,
          PieceTo2 = red(Yoo),
-        ((Yoo =:= Val2 -> PieceFrom2 = empty; PieceFrom2 = red(Val2-Yoo)))
+        ((1 =:= Val2 -> PieceFrom2 = empty; PieceFrom2 = red(Val2-1)))
          ) ;
       (Player = black, (PieceEnemy2 = empty; PieceEnemy2 = red(_)), (Yoo > ValEnemy2),
         NewValue2 is Yoo,
         PieceTo2 = black(Yoo),
-        ((Yoo - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = black(Val2-Yoo))
+        ((1 - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = black(Val2-1))
         )
     ),
 
