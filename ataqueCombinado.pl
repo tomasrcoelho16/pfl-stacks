@@ -37,7 +37,7 @@ is_possible_combinateds(GameState, Player,Val,NewVal, FromRow, FromCol, ToRow, T
         replace(GameState, SelPosRow, SelPosCol, empty, TempGameState),
         (MaxLength > 1 -> write('Want to combine another one? Select from these groups: '), write(OtherPieces), write(' - or "no".'),
             read(SelectedPosition2),
-            (SelectedPosition2 \= SelectedPosition),
+            (SelectedPosition2 \= no -> ((SelectedPosition2 \= SelectedPosition),
             read_position(OtherPieces, SelectedPosition2, OtherPieces2),
             write('You selected: '), write(SelectedPosition2), nl,
             user_input_to_coordinates(SelectedPosition2, (SelPosRow2, SelPosCol2)),
@@ -48,11 +48,12 @@ is_possible_combinateds(GameState, Player,Val,NewVal, FromRow, FromCol, ToRow, T
             Skrt2 is (ValSelected2 + Val + ValSelected),
             write(Skrt2),nl,
             max_list_length(OtherPieces2, MaxLength2),
-            replace(TempGameState, SelPosRow2, SelPosCol2, empty, NewTempGameState); true
+            replace(TempGameState, SelPosRow2, SelPosCol2, empty, NewTempGameState)) ; MaxLength2 = 0, true) 
+            ; true
         ),
         (MaxLength2 > 2 -> write('Want to combine another one? Select from these groups: '), write(OtherPieces2), write(' - or "no".'),
             read(SelectedPosition3),
-            (SelectedPosition3 \= SelectedPosition, SelectedPosition3 \= SelectedPosition2),
+            (SelectedPosition3 \= no -> ((SelectedPosition3 \= SelectedPosition, SelectedPosition3 \= SelectedPosition2),
             read_position(OtherPieces2, SelectedPosition3, OtherPieces3),
             write('You selected: '), write(SelectedPosition3), nl,
             user_input_to_coordinates(SelectedPosition3, (SelPosRow3, SelPosCol3)),
@@ -62,7 +63,8 @@ is_possible_combinateds(GameState, Player,Val,NewVal, FromRow, FromCol, ToRow, T
             ValSelected2 + Val + ValSelected + ValSelected3 =< 4,
             Skrt3 is (ValSelected2 + Val + ValSelected + ValSelected3),
             write(Skrt3),nl,
-            replace(NewTempGameState, SelPosRow3, SelPosCol3, empty, UfGameState); true
+            replace(NewTempGameState, SelPosRow3, SelPosCol3, empty, UfGameState)) ; true)
+            ; true
         ),
         (
             (integer(Skrt3), NewVal = Skrt3, GameStateCombinated = UfGameState);
@@ -75,7 +77,7 @@ is_possible_combinateds(GameState, Player,Val,NewVal, FromRow, FromCol, ToRow, T
         %write('Different List Pieces: '), write(DifferentListPieces), nl
 
     ; % If the user enters 'no' or other input, the code execution can continue
-        true
+        write(UserInput), true
     )
     .
     %here I want to present the user with the different options
