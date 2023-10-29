@@ -114,7 +114,7 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player),
     (Paths \= []),
     write(Paths),
-    (((Player = black, PieceEnemy = red(_)) ; (Player = red, PieceEnemy = black(_))) -> is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths)
+    (((Player = black, PieceEnemy = red(_)) ; (Player = red, PieceEnemy = black(_))) -> is_possible_combinateds(GameState, Player,NPiecesInput, FromRow, FromCol, ToRow, ToCol, Paths)
      ;
     true ),
     
