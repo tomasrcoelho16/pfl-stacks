@@ -16,7 +16,7 @@ is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths
     %trace,
     format_possible_combinations(PossibleCombinations, FriendlyOptions), nl,
     %notrace,
-    remove_empty_lists(FriendlyOptions, FriendlyOptionsCleaned),
+    remove_empty_and_duplicates(FriendlyOptions, FriendlyOptionsCleaned),
     write('TESTE:'),
     write(FriendlyOptionsCleaned),nl
     .
@@ -96,9 +96,10 @@ extract_coordinates([], []).
 extract_coordinates([_-Coord | RestPieces], [Coord | RestCoords]) :-
     extract_coordinates(RestPieces, RestCoords).
 
-remove_empty_lists([], []).
-remove_empty_lists([[] | Rest], CleanList) :-
-    remove_empty_lists(Rest, CleanList).
-remove_empty_lists([List | Rest], [List | CleanList]) :-
-    List \= [],
-    remove_empty_lists(Rest, CleanList).
+% Remove empty lists and duplicates from a list of lists
+remove_empty_and_duplicates([], []).
+remove_empty_and_duplicates([H|T], CleanedList) :-
+    (is_list(H), H = [] -> remove_empty_and_duplicates(T, CleanedList)
+    ; member(H, T) -> remove_empty_and_duplicates(T, CleanedList)
+    ; CleanedList = [H|RestCleaned], remove_empty_and_duplicates(T, RestCleaned)
+    ).
