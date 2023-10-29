@@ -88,7 +88,6 @@ format_possible_combinations([], []).
 format_possible_combinations([Element | RestCombinations], [FriendlyOptions | RestFriendlyOptions]) :-
     Element = (_-Pieces),
     extract_coordinates(Pieces, ExtractedCoords),
-    % Format the coordinates into user-friendly format
     coords_to_user_friendly(ExtractedCoords, FriendlyOptions),
     format_possible_combinations(RestCombinations, RestFriendlyOptions).
 
@@ -103,3 +102,22 @@ remove_empty_and_duplicates([H|T], CleanedList) :-
     ; member(H, T) -> remove_empty_and_duplicates(T, CleanedList)
     ; CleanedList = [H|RestCleaned], remove_empty_and_duplicates(T, RestCleaned)
     ).
+
+adjacent(X, Y, AdjacentX, AdjacentY) :-
+    AdjacentX is X - 1, AdjacentY is Y - 1;  % Top-left
+    AdjacentX is X - 1, AdjacentY is Y;      % Top
+    AdjacentX is X - 1, AdjacentY is Y + 1;  % Top-right
+    AdjacentX is X,     AdjacentY is Y - 1;  % Left
+    AdjacentX is X,     AdjacentY is Y + 1;  % Right
+    AdjacentX is X + 1, AdjacentY is Y - 1;  % Bottom-left
+    AdjacentX is X + 1, AdjacentY is Y;      % Bottom
+    AdjacentX is X + 1, AdjacentY is Y + 1.  % Bottom-right
+
+% Find adjacent pieces to a given position (X, Y) on the game board.
+find_adjacent_pieces(GameState, Player, X, Y, AdjacentPieces) :-
+    findall([Piece-(AdjX,AdjY) ], (
+        adjacent(X, Y, AdjX, AdjY),
+        nth1(AdjX, GameState, Row),
+        nth1(AdjY, Row, Piece),
+        ((Player = black, Piece = black(_));(Player = red, Piece = red(_)))
+    ), AdjacentPieces).

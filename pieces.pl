@@ -113,6 +113,7 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
 
     find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player),
     (Paths \= []),
+    write(Paths),
     (((Player = black, PieceEnemy = red(_)) ; (Player = red, PieceEnemy = black(_))) -> is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths)
      ;
     true ),
@@ -398,9 +399,9 @@ next_position((X, Y), (X1, Y1)) :- X1 is X-1, Y1 is Y + 1.
 
 
 % Recursive predicate to find possible paths.
-possible_path(_, X, Y, X, Y, 0, Path, Path, Player).
-possible_path(_, X, Y, X, Y, 1, Path, Path, Player).
-possible_path(_, X, Y, X, Y, 2, Path, Path, Player).
+possible_path(_, X, Y, X, Y, 0, Path, Path, Player):- !.
+possible_path(_, X, Y, X, Y, 1, Path, Path, Player):- !.
+possible_path(_, X, Y, X, Y, 2, Path, Path, Player):- !.
 possible_path(GameState, X, Y, ToRow, ToCol, Possible, CurrentPath, Path, Player) :-
     Possible > 0,
     %repeat,
@@ -531,21 +532,3 @@ check_diagonal(GameState, X, Y, OffsetX, OffsetY, red):-
     nth1(NewY, RowList2, Piece2),
     ((Piece1 = red(_) ; Piece1 = empty) ; (Piece2 = red(_) ; Piece2 = empty)).
 
-adjacent(X, Y, AdjacentX, AdjacentY) :-
-    AdjacentX is X - 1, AdjacentY is Y - 1;  % Top-left
-    AdjacentX is X - 1, AdjacentY is Y;      % Top
-    AdjacentX is X - 1, AdjacentY is Y + 1;  % Top-right
-    AdjacentX is X,     AdjacentY is Y - 1;  % Left
-    AdjacentX is X,     AdjacentY is Y + 1;  % Right
-    AdjacentX is X + 1, AdjacentY is Y - 1;  % Bottom-left
-    AdjacentX is X + 1, AdjacentY is Y;      % Bottom
-    AdjacentX is X + 1, AdjacentY is Y + 1.  % Bottom-right
-
-% Find adjacent pieces to a given position (X, Y) on the game board.
-find_adjacent_pieces(GameState, Player, X, Y, AdjacentPieces) :-
-    findall([Piece-(AdjX,AdjY) ], (
-        adjacent(X, Y, AdjX, AdjY),
-        nth1(AdjX, GameState, Row),
-        nth1(AdjY, Row, Piece),
-        ((Player = black, Piece = black(_));(Player = red, Piece = red(_)))
-    ), AdjacentPieces).
