@@ -9,9 +9,9 @@ initial_state([
     [empty, empty, black(3), red(1), empty],
     [empty, red(1), empty, empty, empty],
     [red(1), red(1), empty, empty, empty],
-    [empty, red(1), red(2), empty, empty],
-    [empty, red(1), black(3), empty, empty],
-    [black(3), empty, black(1), black(2), black(2)]
+    [empty, black(1), red(2), black(1), empty],
+    [empty, black(1), black(2), black(1), empty],
+    [black(3), empty, black(1), empty, black(2)]
 ]).
 
 % Define a predicate to display the game board.

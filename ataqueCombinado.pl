@@ -17,8 +17,11 @@ is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths
     format_possible_combinations(PossibleCombinations, FriendlyOptions), nl,
     %notrace,
     remove_empty_and_duplicates(FriendlyOptions, FriendlyOptionsCleaned),
-    write('TESTE:'),
-    write(FriendlyOptionsCleaned),nl
+    write('TESTE:'), nl,
+    nth1(FromRow, GameState, Row),
+    nth1(FromCol, Row, Piece),
+    piece_value(Piece,Val)
+    %write_attack_combinateds(GameState,Val,PossibleCombinations),nl
     .
     %here I want to present the user with the different options
 
@@ -121,3 +124,16 @@ find_adjacent_pieces(GameState, Player, X, Y, AdjacentPieces) :-
         nth1(AdjY, Row, Piece),
         ((Player = black, Piece = black(_));(Player = red, Piece = red(_)))
     ), AdjacentPieces).
+
+write_attack_combinateds(GameState, Val, []).
+write_attack_combinateds(GameState,Val,[Option - [Fpiece-Coord | Rest1]| Rest] ) :-
+    length(Rest1,Len),
+    piece_value(Fpiece,Value),
+    write(Fpiece),nl,
+    write(Rest1), nl,
+    write(Val),
+    write(Value), nl,
+    (
+        ((Len > 0), piece_value(Fpiece2,Value2), write(Value2),nl); true
+    ),
+    write_attack_combinateds(GameState,Val, Rest).
