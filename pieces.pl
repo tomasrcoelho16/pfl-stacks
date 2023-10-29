@@ -8,9 +8,9 @@ initial_state([
     [red(3), black(1), red(2), red(4), red(2)],
     [black(2), empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty],
-    [empty, red(1), empty, empty, empty],
-    [red(2), empty, empty, empty, empty],
+    [empty, empty, red(1), red(1), red(1)],
+    [empty, red(1), empty, red(2), empty],
+    [red(2), empty, empty, black(3), empty],
     [black(3), empty, black(1), empty, black(2)]
 ]).
 
@@ -118,7 +118,6 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     (((Player = black, PieceEnemy = red(_), Len > 1) ; (Player = red, PieceEnemy = black(_), Len > 1)) -> is_possible_combinateds(GameState, Player,NPiecesInput, NewVal,AdjacentPieces, FromRow, FromCol, ToRow, ToCol, Paths, GameStateCombinated)
      ;
     true ),
-    write(NPiecesInput),
     (
         (integer(NewVal), Yoo is NewVal, TwoMovesGamestate = GameStateCombinated);
         (Yoo is NPiecesInput, TwoMovesGamestate = GameState)
@@ -206,8 +205,6 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     ),
     find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, 2, Paths, Player),
     (Paths \= []),
-    write('Paths: '),
-    write(Paths), nl,
 
     From = (FromRow, FromCol),
     To = (ToRow, ToCol),
@@ -249,6 +246,17 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     nth1(ToCol2, RowEnemy2, PieceEnemy2),
     piece_value(PieceEnemy2, ValEnemy2),
 
+    find_possible_paths(TwoMovesGamestate, FromRow2, FromCol2, ToRow2, ToCol2, 2, Paths2, Player),
+    (Paths2 \= []),
+    find_adjacent_pieces(GameState,Player,ToRow,ToCol,AdjacentPieces),
+    length(AdjacentPieces, Len),
+    (((Player = black, PieceEnemy = red(_), Len > 1) ; (Player = red, PieceEnemy = black(_), Len > 1)) -> is_possible_combinateds(GameState, Player,1, NewVal,AdjacentPieces, FromRow2, FromCol2, ToRow2, ToCol2, Paths2, GameStateCombinated)
+     ;
+    true ),
+    (
+        (integer(NewVal), Yoo is NewVal, TwoMovesGamestate = GameStateCombinated);
+        (Yoo is 1, TwoMovesGamestate = GameState)
+    ),
     (
         (Player = black, PieceEnemy2 = black(_), (1+ValEnemy2) =< 4,    
         NewValue2 is 1 + ValEnemy2,
@@ -271,10 +279,7 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
         ((1 - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = black(Val2-1))
         )
     ),
-    find_possible_paths(TwoMovesGamestate, FromRow2, FromCol2, ToRow2, ToCol2, 2, Paths2, Player),
-    (Paths2 \= []),
-    write('Paths: '),
-    write(Paths2), nl,
+
     From2 = (FromRow2, FromCol2),
     To2 = (ToRow2, ToCol2),
     Move2 = (From2, To2, PieceFrom2, PieceTo2)
@@ -334,8 +339,14 @@ move(GameState, Move, NewGameState) :-
          read(RetreatInput),
          user_input_to_coordinates(RetreatInput, (RetreatRow, RetreatCol)),
          member([RetreatRow, RetreatCol], RetreatPositionsFixed),
-         replace(GameState, RetreatRow, RetreatCol, black(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0) 
-         
+        nth1(RetreatRow, GameState, RetreatRowList),
+        nth1(RetreatCol, RetreatRowList, RetreatSpace),
+        piece_value(RetreatSpace, RetreatSpaceVal),
+        (RetreatSpaceVal + (EnemyPieceValue - (PieceToValue - EnemyPieceValue))) < 4,
+        ((RetreatSpace \= empty -> replace(GameState, RetreatRow, RetreatCol, black(EnemyPieceValue - (PieceToValue - EnemyPieceValue) + RetreatSpaceVal), GameState0)
+        ;
+        replace(GameState, RetreatRow, RetreatCol, black(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0))
+        )
          );
          ((PieceTo = black(_),
          EnemyPiece = red(_), (EnemyPieceValue - (PieceToValue - EnemyPieceValue) > 0)) ->
@@ -349,8 +360,14 @@ move(GameState, Move, NewGameState) :-
         read(RetreatInput),
         user_input_to_coordinates(RetreatInput, (RetreatRow, RetreatCol)),
         member([RetreatRow, RetreatCol], RetreatPositionsFixed),
-        replace(GameState, RetreatRow, RetreatCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0) 
-         
+        nth1(RetreatRow, GameState, RetreatRowList),
+        nth1(RetreatCol, RetreatRowList, RetreatSpace),
+        piece_value(RetreatSpace, RetreatSpaceVal),
+        (RetreatSpaceVal + (EnemyPieceValue - (PieceToValue - EnemyPieceValue))) < 4,
+        ((RetreatSpace \= empty -> replace(GameState, RetreatRow, RetreatCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue) + RetreatSpaceVal), GameState0)
+        ;
+        replace(GameState, RetreatRow, RetreatCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0))
+        )
          );
          GameState0 = GameState
     ),
