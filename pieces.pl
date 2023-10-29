@@ -209,10 +209,10 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     From = (FromRow, FromCol),
     To = (ToRow, ToCol),
     Move = (From, To, PieceFrom, PieceTo),
-    move(GameState, Move, TwoMovesGamestate),
+    move(GameState, Move, TempGameState),
 
 
-    display_board(TwoMovesGamestate),
+    display_board(TempGameState),
     repeat,
     write('CURRENT PLAYER: '),
     write(Player),nl,
@@ -230,8 +230,7 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     piece_value(Piece2, Val2),
 
     (((FromRow2 =\= 1, Player = black);
-     (FromRow2 =\= 7, Player = red) -> true);
-     (write('That is not allowed.'), nl, fail)          % NAO FAZ SENTIDO SEU FILHO DA PUTA
+     (FromRow2 =\= 7, Player = red) -> true)
     ),
 
     write('Select a destination (e.g., b2): '),
@@ -242,20 +241,20 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     user_input_to_coordinates(ToInput2, (ToRow2, ToCol2)),
     (abs(FromRow2 - ToRow2) =< 2, abs(FromCol2 - ToCol2) =< 2),
 
-    nth1(ToRow2, TwoMovesGamestate, RowEnemy2),
+    nth1(ToRow2, TempGameState, RowEnemy2),
     nth1(ToCol2, RowEnemy2, PieceEnemy2),
     piece_value(PieceEnemy2, ValEnemy2),
 
-    find_possible_paths(TwoMovesGamestate, FromRow2, FromCol2, ToRow2, ToCol2, 2, Paths2, Player),
+    find_possible_paths(TempGameState, FromRow2, FromCol2, ToRow2, ToCol2, 2, Paths2, Player),
     (Paths2 \= []),
-    find_adjacent_pieces(GameState,Player,ToRow,ToCol,AdjacentPieces),
+    find_adjacent_pieces(TempGameState,Player,ToRow,ToCol,AdjacentPieces),
     length(AdjacentPieces, Len),
-    (((Player = black, PieceEnemy = red(_), Len > 1) ; (Player = red, PieceEnemy = black(_), Len > 1)) -> is_possible_combinateds(GameState, Player,1, NewVal,AdjacentPieces, FromRow2, FromCol2, ToRow2, ToCol2, Paths2, GameStateCombinated)
+    (((Player = black, PieceEnemy = red(_), Len > 1) ; (Player = red, PieceEnemy = black(_), Len > 1)) -> is_possible_combinateds(TempGameState, Player,1, NewVal,AdjacentPieces, FromRow2, FromCol2, ToRow2, ToCol2, Paths2, GameStateCombinated)
      ;
     true ),
     (
         (integer(NewVal), Yoo is NewVal, TwoMovesGamestate = GameStateCombinated);
-        (Yoo is 1, TwoMovesGamestate = GameState)
+        (Yoo is 1, TwoMovesGamestate = TempGameState)
     ),
     (
         (Player = black, PieceEnemy2 = black(_), (1+ValEnemy2) =< 4,    
@@ -268,15 +267,15 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
         PieceTo2 = red(NewValue2),
         ((1 - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = red(Val2-1))
         ) ;
-        (Player = red, PieceEnemy2 = empty, (1 > ValEnemy2),
-         NewValue2 is 1,
-         PieceTo2 = red(1),
-        ((1 =:= Val2 -> PieceFrom2 = empty; PieceFrom2 = red(Val2-1)))
+        (Player = red, (PieceEnemy2 = empty; PieceEnemy2 = black(_)), (Yoo > ValEnemy2),
+         NewValue2 is Yoo,
+         PieceTo2 = red(Yoo),
+        ((Yoo =:= Val2 -> PieceFrom2 = empty; PieceFrom2 = red(Val2-Yoo)))
          ) ;
-      (Player = black, PieceEnemy2 = empty, (1 > ValEnemy2),
-        NewValue2 is 1,
-        PieceTo2 = black(1),
-        ((1 - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = black(Val2-1))
+      (Player = black, (PieceEnemy2 = empty; PieceEnemy2 = red(_)), (Yoo > ValEnemy2),
+        NewValue2 is Yoo,
+        PieceTo2 = black(Yoo),
+        ((Yoo - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = black(Val2-Yoo))
         )
     ),
 
