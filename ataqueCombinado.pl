@@ -11,7 +11,6 @@ is_possible_combinateds(GameState, Player,Val,NewVal, FromRow, FromCol, ToRow, T
     write('Possible Combinations:'), nl,
     write(PossibleCombinations), nl,
     PossibleCombinations \= [],
-    repeat,
     write('You can combine your attack! Do you want to? (yes/no)'), nl,
 
     %read user input, if yes, do the things after, if no, (; true)

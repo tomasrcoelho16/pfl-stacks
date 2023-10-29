@@ -118,7 +118,6 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     (((Player = black, PieceEnemy = red(_)) ; (Player = red, PieceEnemy = black(_))) -> is_possible_combinateds(GameState, Player,NPiecesInput, NewVal, FromRow, FromCol, ToRow, ToCol, Paths, GameStateCombinated)
      ;
     true ),
-    display_board(GameStateCombinated),
     write(NPiecesInput),
     (
         (integer(NewVal), Yoo is NewVal, TwoMovesGamestate = GameStateCombinated);
@@ -439,7 +438,7 @@ retreat_positions(black, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
         (valid_position(RetreatRow, RetreatCol), 
          nth1(RetreatRow, GameState, RetreatRowList),
          nth1(RetreatCol, RetreatRowList, RetreatSpace),
-         (RetreatSpace = black(_) ; RetreatSpace = empty),
+         (RetreatSpace = red(_) ; RetreatSpace = empty),
          piece_value(RetreatSpace, RetreatSpaceValue),
          (RetreatSpaceValue + NewValue) =< 4
         ) -> R = [RetreatRow, RetreatCol] ; R = []
@@ -448,7 +447,7 @@ retreat_positions(black, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
         (valid_position(RetreatRow, RetreatColRight), 
          nth1(RetreatRow, GameState, RetreatRowList),
          nth1(RetreatColRight, RetreatRowList, RetreatSpace),
-         (RetreatSpace = black(_) ; RetreatSpace = empty),
+         (RetreatSpace = red(_) ; RetreatSpace = empty),
          piece_value(RetreatSpace, RetreatSpaceValue),
          (RetreatSpaceValue + NewValue) =< 4
         ) -> R = [RetreatRow, RetreatColRight] ; R = []
@@ -457,7 +456,7 @@ retreat_positions(black, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
         (valid_position(RetreatRow, RetreatColLeft), 
          nth1(RetreatRow, GameState, RetreatRowList),
          nth1(RetreatColLeft, RetreatRowList, RetreatSpace),
-         (RetreatSpace = black(_) ; RetreatSpace = empty),
+         (RetreatSpace = red(_) ; RetreatSpace = empty),
          piece_value(RetreatSpace, RetreatSpaceValue),
          (RetreatSpaceValue + NewValue) =< 4
         ) -> R = [RetreatRow, RetreatColLeft] ; R = []
@@ -475,7 +474,7 @@ retreat_positions(red, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
         (valid_position(RetreatRow, RetreatCol), 
          nth1(RetreatRow, GameState, RetreatRowList),
          nth1(RetreatCol, RetreatRowList, RetreatSpace),
-         (RetreatSpace = red(_) ; RetreatSpace = empty),
+         (RetreatSpace = black(_) ; RetreatSpace = empty),
          piece_value(RetreatSpace, RetreatSpaceValue),
          (RetreatSpaceValue + NewValue) =< 4
         ) -> R = [RetreatRow, RetreatCol] ; R = []
@@ -484,7 +483,7 @@ retreat_positions(red, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
         (valid_position(RetreatRow, RetreatColRight), 
          nth1(RetreatRow, GameState, RetreatRowList),
          nth1(RetreatColRight, RetreatRowList, RetreatSpace),
-         (RetreatSpace = red(_) ; RetreatSpace = empty),
+         (RetreatSpace = black(_) ; RetreatSpace = empty),
          piece_value(RetreatSpace, RetreatSpaceValue),
          (RetreatSpaceValue + NewValue) =< 4
         ) -> R = [RetreatRow, RetreatColRight] ; R = []
@@ -493,7 +492,7 @@ retreat_positions(red, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
         (valid_position(RetreatRow, RetreatColLeft), 
          nth1(RetreatRow, GameState, RetreatRowList),
          nth1(RetreatColLeft, RetreatRowList, RetreatSpace),
-         (RetreatSpace = red(_) ; RetreatSpace = empty),
+         (RetreatSpace = black(_) ; RetreatSpace = empty),
          piece_value(RetreatSpace, RetreatSpaceValue),
          (RetreatSpaceValue + NewValue) =< 4
         ) -> R = [RetreatRow, RetreatColLeft] ; R = []
