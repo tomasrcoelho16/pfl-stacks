@@ -13,9 +13,12 @@ is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths
     PossibleCombinations \= [],
     write('You can combine your attack!'), nl,
     write('Choose what pieces you want to combine your attack with: '), nl,
+    %trace,
     format_possible_combinations(PossibleCombinations, FriendlyOptions), nl,
+    %notrace,
+    remove_empty_lists(FriendlyOptions, FriendlyOptionsCleaned),
     write('TESTE:'),
-    write(FriendlyOptions),nl
+    write(FriendlyOptionsCleaned),nl
     .
     %here I want to present the user with the different options
 
@@ -81,17 +84,21 @@ coords_to_user_friendly([Coord | RestCoords], [FriendlyOption | RestFriendlyOpti
     atom_concat(Char, Yam, FriendlyOption),
     coords_to_user_friendly(RestCoords, RestFriendlyOptions).
 
-format_possible_combinations([], RestFriendlyOptions).
-format_possible_combinations([Element | RestCombinations], [FriendlyOptions | RestFriendlyOptions]):-
-    Element = (Coord-Pieces),
-    extract_coordinates(Pieces, ExtractedCoords, UpdatedExtractedCoords),
-    write('Coords:'),nl,
-    write(UpdatedExtractedCoords), nl,
+format_possible_combinations([], []).
+format_possible_combinations([Element | RestCombinations], [FriendlyOptions | RestFriendlyOptions]) :-
+    Element = (_-Pieces),
+    extract_coordinates(Pieces, ExtractedCoords),
     % Format the coordinates into user-friendly format
-    coords_to_user_friendly(UpdatedExtractedCoords, FriendlyOptions),
+    coords_to_user_friendly(ExtractedCoords, FriendlyOptions),
     format_possible_combinations(RestCombinations, RestFriendlyOptions).
 
-extract_coordinates([], ExtractedCoords, ExtractedCoords).
-extract_coordinates([Piece-Coord | RestPieces], ExtractedCoords, UpdatedExtractedCoords) :-  
-    append([Coord], ExtractedCoords, TempExtractedCoords),
-    extract_coordinates(RestPieces, TempExtractedCoords, UpdatedExtractedCoords).
+extract_coordinates([], []).
+extract_coordinates([_-Coord | RestPieces], [Coord | RestCoords]) :-
+    extract_coordinates(RestPieces, RestCoords).
+
+remove_empty_lists([], []).
+remove_empty_lists([[] | Rest], CleanList) :-
+    remove_empty_lists(Rest, CleanList).
+remove_empty_lists([List | Rest], [List | CleanList]) :-
+    List \= [],
+    remove_empty_lists(Rest, CleanList).
