@@ -110,6 +110,10 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     nth1(ToRow, GameState, RowEnemy),
     nth1(ToCol, RowEnemy, PieceEnemy),
     piece_value(PieceEnemy, ValEnemy),
+
+    find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player),
+    is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths),
+    
     
     ( (Player = black, PieceEnemy = black(_), (NPiecesInput+ValEnemy) =< 4,    
         NewValue is NPiecesInput + ValEnemy,

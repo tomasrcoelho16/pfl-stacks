@@ -1,6 +1,7 @@
 % Load the predicates from pieces.pl
 :- use_module(library(lists)).
 :- consult(pieces).
+:- consult(ataqueCombinado).
 
 % Define the main predicate to start the game.
 play :-
