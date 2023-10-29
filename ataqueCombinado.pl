@@ -12,10 +12,10 @@ is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths
     write(PossibleCombinations), nl,
     PossibleCombinations \= [],
     write('You can combine your attack!'), nl,
-    write('Choose what pieces you want to combine your attack with: '),
-    format_possible_combinations(PossibleCombinations, FriendlyOptions),
-    write('TESTE:'),nl,
-    write(FriendlyOptions)
+    write('Choose what pieces you want to combine your attack with: '), nl,
+    format_possible_combinations(PossibleCombinations, FriendlyOptions), nl,
+    write('TESTE:'),
+    write(FriendlyOptions),nl
     .
     %here I want to present the user with the different options
 
@@ -73,18 +73,20 @@ write_test([Element | RestAdjacentPieces]):-
 
 coords_to_user_friendly([], []).
 coords_to_user_friendly([Coord | RestCoords], [FriendlyOption | RestFriendlyOptions]) :-
-    [Row, Col] = Coord,
+    (Row, Col) = Coord,
     Code is Col + 96,
+    Test is Row + 48,
     char_code(Char, Code),
-    atom_concat(Char, Row, FriendlyOption),
+    char_code(Yam, Test),
+    atom_concat(Char, Yam, FriendlyOption),
     coords_to_user_friendly(RestCoords, RestFriendlyOptions).
 
-
-format_possible_combinations([Element | RestCombinations], FriendlyOptions):-
+format_possible_combinations([], RestFriendlyOptions).
+format_possible_combinations([Element | RestCombinations], [FriendlyOptions | RestFriendlyOptions]):-
     Element = (Coord-Pieces),
     extract_coordinates(Pieces, ExtractedCoords, UpdatedExtractedCoords),
     write('Coords:'),nl,
-    write(UpdatedExtractedCoords).
+    write(UpdatedExtractedCoords), nl,
     % Format the coordinates into user-friendly format
     coords_to_user_friendly(UpdatedExtractedCoords, FriendlyOptions),
     format_possible_combinations(RestCombinations, RestFriendlyOptions).

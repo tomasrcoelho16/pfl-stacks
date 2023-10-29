@@ -138,8 +138,8 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     ),
     find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player),
     (Paths \= []),
-    write('Paths: '),
-    write(Paths), nl,
+    %write('Paths: '),
+    %write(Paths), nl,
 
 
     From = (FromRow, FromCol),
@@ -273,7 +273,6 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     (Paths2 \= []),
     write('Paths: '),
     write(Paths2), nl,
-    %GameState = GameState2,
     From2 = (FromRow2, FromCol2),
     To2 = (ToRow2, ToCol2),
     Move2 = (From2, To2, PieceFrom2, PieceTo2)
