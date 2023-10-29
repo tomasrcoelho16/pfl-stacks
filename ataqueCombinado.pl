@@ -1,6 +1,6 @@
 is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths):-
     find_adjacent_pieces(GameState,Player,ToRow,ToCol,AdjacentPieces),
-    find_adjacent_pieces \= [],
+    AdjacentPieces \= [],
     write('AdjacentPieces'), nl,
     write(AdjacentPieces), nl,
     save_coordinates(Paths, PenultimeCoordinates, FromRow, FromCol), nl,
