@@ -1,6 +1,6 @@
 is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths):-
     find_adjacent_pieces(GameState,Player,ToRow,ToCol,AdjacentPieces),
-    find_adjacent_pieces \= [],
+    AdjacentPieces \= [],
     write('AdjacentPieces'), nl,
     write(AdjacentPieces), nl,
     save_coordinates(Paths, PenultimeCoordinates, FromRow, FromCol), nl,
@@ -9,7 +9,15 @@ is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths
     write(PenultimeCoordinatesFixed), nl,
     find_possible_combinations(PenultimeCoordinatesFixed, AdjacentPieces, PossibleCombinations, FromRow, FromCol),
     write('Possible Combinations:'), nl,
-    write(PossibleCombinations), nl.
+    write(PossibleCombinations), nl,
+    PossibleCombinations \= [],
+    write('You can combine your attack!'), nl,
+    write('Choose what pieces you want to combine your attack with: '),
+    format_possible_combinations(PossibleCombinations, FriendlyOptions),
+    write('TESTE:'),nl,
+    write(FriendlyOptions)
+    .
+    %here I want to present the user with the different options
 
 
 % Define a predicate to find possible combinations
@@ -61,3 +69,27 @@ write_test([Element | RestAdjacentPieces]):-
     write('Piece: '), write(Piece), nl,
     write('Coord: '), write(Coord), nl,
     write(RestAdjacentPieces).
+
+
+coords_to_user_friendly([], []).
+coords_to_user_friendly([Coord | RestCoords], [FriendlyOption | RestFriendlyOptions]) :-
+    [Row, Col] = Coord,
+    Code is Col + 96,
+    char_code(Char, Code),
+    atom_concat(Char, Row, FriendlyOption),
+    coords_to_user_friendly(RestCoords, RestFriendlyOptions).
+
+
+format_possible_combinations([Element | RestCombinations], FriendlyOptions):-
+    Element = (Coord-Pieces),
+    extract_coordinates(Pieces, ExtractedCoords, UpdatedExtractedCoords),
+    write('Coords:'),nl,
+    write(UpdatedExtractedCoords).
+    % Format the coordinates into user-friendly format
+    coords_to_user_friendly(UpdatedExtractedCoords, FriendlyOptions),
+    format_possible_combinations(RestCombinations, RestFriendlyOptions).
+
+extract_coordinates([], ExtractedCoords, ExtractedCoords).
+extract_coordinates([Piece-Coord | RestPieces], ExtractedCoords, UpdatedExtractedCoords) :-  
+    append([Coord], ExtractedCoords, TempExtractedCoords),
+    extract_coordinates(RestPieces, TempExtractedCoords, UpdatedExtractedCoords).
