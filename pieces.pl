@@ -112,7 +112,10 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     piece_value(PieceEnemy, ValEnemy),
 
     find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player),
-    is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths),
+    (Paths \= []),
+    (((Player = black, PieceEnemy = red(_)) ; (Player = red, PieceEnemy = black(_))) -> is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths)
+     ;
+    true ),
     
     
     ( (Player = black, PieceEnemy = black(_), (NPiecesInput+ValEnemy) =< 4,    
@@ -136,11 +139,6 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
         (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-NPiecesInput))
         )
     ),
-    find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player),
-    (Paths \= []),
-    %write('Paths: '),
-    %write(Paths), nl,
-
 
     From = (FromRow, FromCol),
     To = (ToRow, ToCol),
