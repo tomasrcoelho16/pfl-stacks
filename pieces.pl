@@ -6,11 +6,11 @@
 
 initial_state([
     [red(3), black(1), red(2), red(4), red(2)],
-    [empty, empty, black(3), red(1), empty],
-    [empty, black(1), empty, black(1), empty],
-    [empty, empty, red(2), black(1), empty],
-    [empty, black(1), black(1), black(1), empty],
-    [empty, empty, empty, black(1), empty],
+    [black(2), empty, empty, empty, empty],
+    [empty, empty, empty, empty, empty],
+    [empty, empty, empty, empty, empty],
+    [empty, red(1), empty, empty, empty],
+    [red(2), empty, empty, empty, empty],
     [black(3), empty, black(1), empty, black(2)]
 ]).
 
@@ -113,9 +113,9 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
 
     find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player),
     (Paths \= []),
-    write(Paths),
-    write(NPiecesInput),
-    (((Player = black, PieceEnemy = red(_)) ; (Player = red, PieceEnemy = black(_))) -> is_possible_combinateds(GameState, Player,NPiecesInput, NewVal, FromRow, FromCol, ToRow, ToCol, Paths, GameStateCombinated)
+    find_adjacent_pieces(GameState,Player,ToRow,ToCol,AdjacentPieces),
+    length(AdjacentPieces, Len),
+    (((Player = black, PieceEnemy = red(_), Len > 1) ; (Player = red, PieceEnemy = black(_), Len > 1)) -> is_possible_combinateds(GameState, Player,NPiecesInput, NewVal,AdjacentPieces, FromRow, FromCol, ToRow, ToCol, Paths, GameStateCombinated)
      ;
     true ),
     write(NPiecesInput),
@@ -325,9 +325,16 @@ move(GameState, Move, NewGameState) :-
          EnemyPiece = black(_), (EnemyPieceValue - (PieceToValue - EnemyPieceValue) > 0)) ->
 
         
-
-         replace(GameState, ToRow - 1, ToCol, black(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0) 
-         
+         retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
+         remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
+         repeat,
+         write('Choose a position to retreat the piece to: (  '),
+          write_retreat(RetreatPositionsFixed),
+         write(')'), nl,
+         read(RetreatInput),
+         user_input_to_coordinates(RetreatInput, (RetreatRow, RetreatCol)),
+         member([RetreatRow, RetreatCol], RetreatPositionsFixed),
+         replace(GameState, RetreatRow, RetreatCol, black(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0) 
          
          );
          ((PieceTo = black(_),
