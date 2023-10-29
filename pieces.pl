@@ -114,37 +114,41 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player),
     (Paths \= []),
     write(Paths),
-    (((Player = black, PieceEnemy = red(_)) ; (Player = red, PieceEnemy = black(_))) -> is_possible_combinateds(GameState, Player,NPiecesInput, FromRow, FromCol, ToRow, ToCol, Paths)
+    write(NPiecesInput),
+    (((Player = black, PieceEnemy = red(_)) ; (Player = red, PieceEnemy = black(_))) -> is_possible_combinateds(GameState, Player,NPiecesInput, NewVal, FromRow, FromCol, ToRow, ToCol, Paths, GameStateCombinated)
      ;
     true ),
-    
-    
-    ( (Player = black, PieceEnemy = black(_), (NPiecesInput+ValEnemy) =< 4,    
-        NewValue is NPiecesInput + ValEnemy,
+    display_board(GameStateCombinated),
+    write(NPiecesInput),
+    (
+        (integer(NewVal), Yoo is NewVal, TwoMovesGamestate = GameStateCombinated);
+        (Yoo is NPiecesInput, TwoMovesGamestate = GameState)
+    ),
+    ( (Player = black, PieceEnemy = black(_), (Yoo+ValEnemy) =< 4,    
+        NewValue is Yoo + ValEnemy,
         PieceTo = black(NewValue),
         (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-NPiecesInput))
         ) ;
-      (Player = red, PieceEnemy = red(_), (NPiecesInput+ValEnemy) =< 4,
-        NewValue is NPiecesInput + ValEnemy,
+      (Player = red, PieceEnemy = red(_), (Yoo+ValEnemy) =< 4,
+        NewValue is Yoo + ValEnemy,
         PieceTo = red(NewValue),
         (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = red(Val-NPiecesInput))
         ) ;
-      (Player = red, (PieceEnemy = black(_); PieceEnemy = empty), (NPiecesInput > ValEnemy),
-         NewValue is NPiecesInput,
-         PieceTo = red(NPiecesInput),
+      (Player = red, (PieceEnemy = black(_); PieceEnemy = empty), (Yoo > ValEnemy),
+         NewValue is Yoo,
+         PieceTo = red(Yoo),
         ((NPiecesInput =:= Val -> PieceFrom = empty; PieceFrom = red(Val-NPiecesInput)))
          ) ;
-      (Player = black, (PieceEnemy = red(_); PieceEnemy = empty), (NPiecesInput > ValEnemy),
-        NewValue is NPiecesInput,
-        PieceTo = black(NPiecesInput),
+      (Player = black, (PieceEnemy = red(_); PieceEnemy = empty), (Yoo > ValEnemy),
+        NewValue is Yoo,
+        PieceTo = black(Yoo),
         (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-NPiecesInput))
         )
     ),
 
     From = (FromRow, FromCol),
     To = (ToRow, ToCol),
-    Move = (From, To, PieceFrom, PieceTo),
-    TwoMovesGamestate = GameState
+    Move = (From, To, PieceFrom, PieceTo)
     .
 double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     repeat,

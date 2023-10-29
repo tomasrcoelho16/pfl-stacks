@@ -1,4 +1,4 @@
-is_possible_combinateds(GameState, Player,Val, FromRow, FromCol, ToRow, ToCol, Paths):-
+is_possible_combinateds(GameState, Player,Val,NewVal, FromRow, FromCol, ToRow, ToCol, Paths, GameStateCombinated):-
     find_adjacent_pieces(GameState,Player,ToRow,ToCol,AdjacentPieces),
     AdjacentPieces \= [],
     write('AdjacentPieces'), nl,
@@ -33,37 +33,43 @@ is_possible_combinateds(GameState, Player,Val, FromRow, FromCol, ToRow, ToCol, P
         nth1(SelPosCol, Row2, PieceSelected),
         piece_value(PieceSelected, ValSelected),
         ValSelected + Val =< 4,
+        Skrt is Val + ValSelected,
         max_list_length(OtherPieces, MaxLength),
         replace(GameState, SelPosRow, SelPosCol, empty, TempGameState),
         (MaxLength > 1 -> write('Want to combine another one? Select from these groups: '), write(OtherPieces), write(' - or "no".'),
             read(SelectedPosition2),
             (SelectedPosition2 \= SelectedPosition),
             read_position(OtherPieces, SelectedPosition2, OtherPieces2),
+            write('You selected: '), write(SelectedPosition2), nl,
             user_input_to_coordinates(SelectedPosition2, (SelPosRow2, SelPosCol2)),
             nth1(SelPosRow2, GameState, Row22),
             nth1(SelPosCol2, Row22, PieceSelected2),
             piece_value(PieceSelected2, ValSelected2),
-            Skrt is ValSelected2 + Val + ValSelected,
-            write(Skrt),nl,
             ValSelected2 + Val + ValSelected =< 4,
+            Skrt2 is (ValSelected2 + Val + ValSelected),
+            write(Skrt2),nl,
             max_list_length(OtherPieces2, MaxLength2),
-            replace(TempGameState, SelPosRow2, SelPosCol2, empty, NewTempGameState)
+            replace(TempGameState, SelPosRow2, SelPosCol2, empty, NewTempGameState); true
         ),
         (MaxLength2 > 2 -> write('Want to combine another one? Select from these groups: '), write(OtherPieces2), write(' - or "no".'),
             read(SelectedPosition3),
             (SelectedPosition3 \= SelectedPosition, SelectedPosition3 \= SelectedPosition2),
             read_position(OtherPieces2, SelectedPosition3, OtherPieces3),
+            write('You selected: '), write(SelectedPosition3), nl,
             user_input_to_coordinates(SelectedPosition3, (SelPosRow3, SelPosCol3)),
             nth1(SelPosRow3, GameState, Row23),
             nth1(SelPosCol3, Row23, PieceSelected3),
             piece_value(PieceSelected3, ValSelected3),
-            Skrt2 is ValSelected2 + Val + ValSelected + ValSelected3,
-            write(Skrt2),nl,
             ValSelected2 + Val + ValSelected + ValSelected3 =< 4,
-            replace(NewTempGameState, SelPosRow3, SelPosCol3, empty, UfGameState)
+            Skrt3 is (ValSelected2 + Val + ValSelected + ValSelected3),
+            write(Skrt3),nl,
+            replace(NewTempGameState, SelPosRow3, SelPosCol3, empty, UfGameState); true
         ),
-        To = (ToRow, ToCol),
-        From = (FromRow,FromCol)
+        (
+            (integer(Skrt3), NewVal = Skrt3, GameStateCombinated = UfGameState);
+            (integer(Skrt2), NewVal = Skrt2 , GameStateCombinated = NewTempGameState);
+            (NewVal = Skrt, GameStateCombinated = TempGameState)
+        )
         % Separate pieces based on the list
         %separate_pieces_by_list(SelectedPosition, FriendlyOptionsCleaned, SameListPieces, DifferentListPieces),
         %write('Same List Pieces: '), write(SameListPieces), nl,
