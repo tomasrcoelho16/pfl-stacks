@@ -11,17 +11,35 @@ is_possible_combinateds(GameState, Player, FromRow, FromCol, ToRow, ToCol, Paths
     write('Possible Combinations:'), nl,
     write(PossibleCombinations), nl,
     PossibleCombinations \= [],
-    write('You can combine your attack!'), nl,
-    write('Choose what pieces you want to combine your attack with: '), nl,
-    %trace,
-    format_possible_combinations(PossibleCombinations, FriendlyOptions), nl,
-    %notrace,
-    remove_empty_and_duplicates(FriendlyOptions, FriendlyOptionsCleaned),
-    write('TESTE:'), nl,
+    write('You can combine your attack! Do you want to? (yes/no)'), nl,
+
+    %read user input, if yes, do the things after, if no, (; true)
+    
     nth1(FromRow, GameState, Row),
     nth1(FromCol, Row, Piece),
-    piece_value(Piece,Val)
-    %write_attack_combinateds(GameState,Val,PossibleCombinations),nl
+    piece_value(Piece, Val),
+
+    read(UserInput),
+    (UserInput == yes ->
+
+        write('Choose what pieces you want to combine your attack with: '),
+
+        format_possible_combinations(PossibleCombinations, FriendlyOptions),
+        remove_empty_and_duplicates(FriendlyOptions, FriendlyOptionsCleaned),
+        write(FriendlyOptionsCleaned), nl,
+        write('Enter the position you want to use: '),
+        read(SelectedPosition),
+        read_position(FriendlyOptionsCleaned, SelectedPosition, OtherPieces),
+        write('You selected: '), write(SelectedPosition), nl,
+        write('You selected from these groups: '), write(OtherPieces)
+        % Separate pieces based on the list
+        %separate_pieces_by_list(SelectedPosition, FriendlyOptionsCleaned, SameListPieces, DifferentListPieces),
+        %write('Same List Pieces: '), write(SameListPieces), nl,
+        %write('Different List Pieces: '), write(DifferentListPieces), nl
+
+    ; % If the user enters 'no' or other input, the code execution can continue
+        true
+    )
     .
     %here I want to present the user with the different options
 
@@ -137,3 +155,46 @@ write_attack_combinateds(GameState,Val,[Option - [Fpiece-Coord | Rest1]| Rest] )
         ((Len > 0), piece_value(Fpiece2,Value2), write(Value2),nl); true
     ),
     write_attack_combinateds(GameState,Val, Rest).
+
+% Initialize the accumulator as an empty list
+read_position(FriendlyOptionsCleaned, SelectedPosition, OtherPieces) :-
+    read_position(FriendlyOptionsCleaned, SelectedPosition, [], OtherPieces).
+
+% Base case: If we've reached the end of the list, set OtherPieces to the accumulated pieces.
+read_position([], _, Accumulator, OtherPieces) :-
+    OtherPieces = Accumulator.
+
+% Check the current list for SelectedPosition, if found, append it as a sublist to the accumulator.
+read_position([FriendlyOptionsCleaned | RestFriendlyOptionsCleaned], SelectedPosition, Accumulator, OtherPieces) :-
+    (member(SelectedPosition, FriendlyOptionsCleaned) ->
+        append(Accumulator, [FriendlyOptionsCleaned], NewAccumulator)
+    ;   % If not found, keep the accumulator as is.
+        NewAccumulator = Accumulator
+    ),
+    % Continue with the next list.
+    read_position(RestFriendlyOptionsCleaned, SelectedPosition, NewAccumulator, OtherPieces).
+
+
+
+
+% Separate pieces into SameListPieces and DifferentListPieces
+separate_pieces_by_list(SelectedPosition, FriendlyOptions, SameListPieces, DifferentListPieces) :-
+    find_pieces_in_same_list(SelectedPosition, FriendlyOptions, SameListPieces),
+    find_pieces_in_different_lists(SelectedPosition, FriendlyOptions, DifferentListPieces).
+
+% Find pieces in the same list as SelectedPosition
+find_pieces_in_same_list(_, [], []).
+find_pieces_in_same_list(SelectedPosition, [List | Rest], SameListPieces) :-
+    (member(SelectedPosition, List) ->
+        SameListPieces = List
+    ; find_pieces_in_same_list(SelectedPosition, Rest, SameListPieces)
+    ).
+
+% Find pieces in different lists from SelectedPosition
+find_pieces_in_different_lists(_, [], []).
+find_pieces_in_different_lists(SelectedPosition, [List | Rest], DifferentListPieces) :-
+    (member(SelectedPosition, List) ->
+        find_pieces_in_different_lists(SelectedPosition, Rest, DifferentListPieces)
+    ; append(List, RestDifferentListPieces, DifferentListPieces),
+      find_pieces_in_different_lists(SelectedPosition, Rest, RestDifferentListPieces)
+    ).
