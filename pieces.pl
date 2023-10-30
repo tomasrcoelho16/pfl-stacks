@@ -5,8 +5,8 @@
 % empty represents an empty cell.
 
 initial_state([
-    [red(3), black(1), red(2), red(4), red(2)],
-    [black(2), empty, empty, empty, empty],
+    [red(3), black(1), red(2), black(1), red(2)],
+    [black(2), empty, black(3), empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, red(1), red(1), red(1)],
     [empty, red(1), empty, red(2), empty],
@@ -327,8 +327,11 @@ move(GameState, Move, NewGameState) :-
          retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
          remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
          repeat,
-         write('Choose a position to retreat the piece to: (  '),
-          write_retreat(RetreatPositionsFixed),
+         write('RetreatPositionsFixed'), nl,
+         write(RetreatPositionsFixed), nl,
+         (
+            (RetreatPositionsFixed \= [] -> (write('Choose a position to retreat the piece to: (  '),
+         write_retreat(RetreatPositionsFixed),
          write(')'), nl,
          read(RetreatInput),
          user_input_to_coordinates(RetreatInput, (RetreatRow, RetreatCol)),
@@ -340,7 +343,8 @@ move(GameState, Move, NewGameState) :-
         ((RetreatSpace \= empty -> replace(GameState, RetreatRow, RetreatCol, black(EnemyPieceValue - (PieceToValue - EnemyPieceValue) + RetreatSpaceVal), GameState0)
         ;
         replace(GameState, RetreatRow, RetreatCol, black(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0))
-        )
+        )))
+         ); GameState0 = GameState
          );
          ((PieceTo = black(_),
          EnemyPiece = red(_), (EnemyPieceValue - (PieceToValue - EnemyPieceValue) > 0)) ->
@@ -348,12 +352,15 @@ move(GameState, Move, NewGameState) :-
         retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
         remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
         repeat,
-        write('Choose a position to retreat the piece to: (  '),
-        write_retreat(RetreatPositionsFixed),
-        write(')'), nl,
-        read(RetreatInput),
-        user_input_to_coordinates(RetreatInput, (RetreatRow, RetreatCol)),
-        member([RetreatRow, RetreatCol], RetreatPositionsFixed),
+        write('RetreatPositionsFixed'), nl,
+        write(RetreatPositionsFixed), nl,
+       (
+            (RetreatPositionsFixed \= [] -> (write('Choose a position to retreat the piece to: (  '),
+         write_retreat(RetreatPositionsFixed),
+         write(')'), nl,
+         read(RetreatInput),
+         user_input_to_coordinates(RetreatInput, (RetreatRow, RetreatCol)),
+         member([RetreatRow, RetreatCol], RetreatPositionsFixed),
         nth1(RetreatRow, GameState, RetreatRowList),
         nth1(RetreatCol, RetreatRowList, RetreatSpace),
         piece_value(RetreatSpace, RetreatSpaceVal),
@@ -361,7 +368,8 @@ move(GameState, Move, NewGameState) :-
         ((RetreatSpace \= empty -> replace(GameState, RetreatRow, RetreatCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue) + RetreatSpaceVal), GameState0)
         ;
         replace(GameState, RetreatRow, RetreatCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0))
-        )
+        )))
+         ); GameState0 = GameState
          );
          GameState0 = GameState
     ),
@@ -448,8 +456,10 @@ possible_path(GameState, X, Y, ToRow, ToCol, Possible, CurrentPath, Path, Player
 
 % Retreat positions for the black player
 retreat_positions(black, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
-    RetreatRow is ToRow - 1,
-    RetreatCol is ToCol,
+    (
+        ((ToRow =\= 1) -> RetreatRow is ToRow - 1,RetreatCol is ToCol);
+        (RetreatRow is ToRow, RetreatCol is 0)
+    ),
     RetreatColLeft is ToCol - 1,
     RetreatColRight is ToCol + 1,
     findall(R, (
@@ -484,8 +494,10 @@ retreat_positions(black, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
 
 % Retreat positions for the black player
 retreat_positions(red, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
-    RetreatRow is ToRow + 1,
-    RetreatCol is ToCol,
+    (
+        ((ToRow =\= 7) -> RetreatRow is ToRow + 1,RetreatCol is ToCol);
+        (RetreatRow is ToRow, RetreatCol is 0)
+    ),
     RetreatColLeft is ToCol - 1,
     RetreatColRight is ToCol + 1,
     findall(R, (
