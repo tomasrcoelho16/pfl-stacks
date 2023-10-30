@@ -5,13 +5,13 @@
 % empty represents an empty cell.
 
 initial_state([
-    [red(3), black(1), red(2), black(1), red(2)],
+    [red(3), red(1), red(2), empty, red(2)],
     [black(2), empty, black(3), empty, empty],
     [empty, empty, empty, empty, empty],
     [empty, empty, red(1), red(1), red(1)],
     [empty, red(1), empty, red(2), empty],
-    [red(2), empty, empty, black(3), empty],
-    [black(3), empty, black(1), empty, black(2)]
+    [red(3), empty, empty, black(3), empty],
+    [black(2), red(1), black(1), empty, black(2)]
 ]).
 
 % Define a predicate to display the game board.
@@ -317,13 +317,15 @@ move(GameState, Move, NewGameState) :-
 
     NewValue is (EnemyPieceValue - (PieceToValue - EnemyPieceValue)),
 
-
+    retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
+    remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
+    write(RetreatPositionsFixed), nl,
+    write(NewValue),
 
     (
         ((PieceTo = red(_),
-         EnemyPiece = black(_), (EnemyPieceValue - (PieceToValue - EnemyPieceValue) > 0)) ->
-
-        
+         EnemyPiece = black(_), NewValue > 0) ->
+         write('bbbbb'),
          retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
          remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
          repeat,
@@ -343,33 +345,33 @@ move(GameState, Move, NewGameState) :-
         ((RetreatSpace \= empty -> replace(GameState, RetreatRow, RetreatCol, black(EnemyPieceValue - (PieceToValue - EnemyPieceValue) + RetreatSpaceVal), GameState0)
         ;
         replace(GameState, RetreatRow, RetreatCol, black(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0))
-        )))
-         ); GameState0 = GameState
+        );GameState0 = GameState)) ; GameState0 = GameState
+         )
          );
-         ((PieceTo = black(_),
-         EnemyPiece = red(_), (EnemyPieceValue - (PieceToValue - EnemyPieceValue) > 0)) ->
-
-        retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
-        remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
-        repeat,
-        write('RetreatPositionsFixed'), nl,
-        write(RetreatPositionsFixed), nl,
-       (
+        ((PieceTo = black(_),
+         EnemyPiece = red(_), NewValue > 0) ->
+         write('aaaaa'),
+         %retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
+         %remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
+         repeat,
+         write('RetreatPositionsFixed'), nl,
+         write(RetreatPositionsFixed), nl,
+        (
             (RetreatPositionsFixed \= [] -> (write('Choose a position to retreat the piece to: (  '),
          write_retreat(RetreatPositionsFixed),
          write(')'), nl,
          read(RetreatInput),
          user_input_to_coordinates(RetreatInput, (RetreatRow, RetreatCol)),
          member([RetreatRow, RetreatCol], RetreatPositionsFixed),
-        nth1(RetreatRow, GameState, RetreatRowList),
-        nth1(RetreatCol, RetreatRowList, RetreatSpace),
-        piece_value(RetreatSpace, RetreatSpaceVal),
-        (RetreatSpaceVal + (EnemyPieceValue - (PieceToValue - EnemyPieceValue))) < 4,
-        ((RetreatSpace \= empty -> replace(GameState, RetreatRow, RetreatCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue) + RetreatSpaceVal), GameState0)
-        ;
-        replace(GameState, RetreatRow, RetreatCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0))
-        )))
-         ); GameState0 = GameState
+         nth1(RetreatRow, GameState, RetreatRowList),
+         nth1(RetreatCol, RetreatRowList, RetreatSpace),
+         piece_value(RetreatSpace, RetreatSpaceVal),
+         (RetreatSpaceVal + (EnemyPieceValue - (PieceToValue - EnemyPieceValue))) < 4,
+         ((RetreatSpace \= empty -> replace(GameState, RetreatRow, RetreatCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue) + RetreatSpaceVal), GameState0)
+         ;
+         replace(GameState, RetreatRow, RetreatCol, red(EnemyPieceValue - (PieceToValue - EnemyPieceValue)), GameState0))
+         ); GameState0 = GameState)) ; GameState0 = GameState
+         )
          );
          GameState0 = GameState
     ),
