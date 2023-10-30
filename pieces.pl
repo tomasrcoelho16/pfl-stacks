@@ -114,7 +114,7 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player),
     (Paths \= []),
     find_adjacent_pieces(GameState,Player,ToRow,ToCol,AdjacentPieces),
-    (((Player = black, PieceEnemy = red(_), AdjacentPieces \= [[Piece-(FromRow,FromCol)]]) ; (Player = red, PieceEnemy = black(_), AdjacentPieces \= [[Piece-(FromRow,FromCol)]])) -> is_possible_combinateds(GameState, Player,NPiecesInput, NewVal,AdjacentPieces, FromRow, FromCol, ToRow, ToCol, Paths, GameStateCombinated)
+    (((Player = black, PieceEnemy = red(_), AdjacentPieces \= [[Piece-(FromRow,FromCol)]], AdjacentPieces \= []) ; (Player = red, PieceEnemy = black(_), AdjacentPieces \= [[Piece-(FromRow,FromCol)]], AdjacentPieces \= [])) -> is_possible_combinateds(GameState, Player,NPiecesInput, NewVal,AdjacentPieces, FromRow, FromCol, ToRow, ToCol, Paths, GameStateCombinated)
      ;
     true ),
     (
@@ -319,9 +319,6 @@ move(GameState, Move, NewGameState) :-
 
     retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
     remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
-    write(RetreatPositionsFixed), nl,
-    write(NewValue),
-
     (
         ((PieceTo = red(_),
          EnemyPiece = black(_), NewValue > 0) ->
