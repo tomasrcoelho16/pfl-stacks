@@ -244,7 +244,7 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
 
     find_possible_paths(TempGameState, FromRow2, FromCol2, ToRow2, ToCol2, 2, Paths2, Player),
     find_adjacent_pieces(TempGameState,Player,ToRow2,ToCol2,AdjacentPieces),
-    (((Player = black, PieceEnemy2 = red(_), AdjacentPieces \= [[Piece2-(FromRow2,FromCol2)]]) ; (Player = red, PieceEnemy2 = black(_), AdjacentPieces \= [[Piece2-(FromRow2,FromCol2)]])) -> is_possible_combinateds(TempGameState, Player,1, NewVal,AdjacentPieces, FromRow2, FromCol2, ToRow2, ToCol2, Paths2, GameStateCombinated)
+    (((Player = black, PieceEnemy2 = red(_), AdjacentPieces \= [[Piece2-(FromRow2,FromCol2)]], AdjacentPieces \= []) ; (Player = red, PieceEnemy2 = black(_), AdjacentPieces \= [[Piece2-(FromRow2,FromCol2)]], AdjacentPieces \= [])) -> is_possible_combinateds(TempGameState, Player,1, NewVal,AdjacentPieces, FromRow2, FromCol2, ToRow2, ToCol2, Paths2, GameStateCombinated)
      ;
     true ),
     (
