@@ -280,10 +280,10 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     .
 
 
-% para o bot
-%choose_move(GameState, computer-Level, Move):-
-    %valid_moves(GameState, Moves),
-    %choose_move(Level, GameState, Moves, Move).
+
+choose_move(GameState, computer-Level, Move):-
+    valid_moves(GameState, Moves),
+    choose_move(Level, GameState, Moves, Move).
 
 
 % Define a predicate to convert a user input like "A2" to column and row coordinates.

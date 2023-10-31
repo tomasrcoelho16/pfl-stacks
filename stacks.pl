@@ -1,7 +1,9 @@
 % Load the predicates from pieces.pl
 :- use_module(library(lists)).
+:- use_module(library(between)).
 :- consult(pieces).
 :- consult(ataqueCombinado).
+:- consult(botLevel1).
 
 % Define the main predicate to start the game.
 play :-
@@ -89,7 +91,6 @@ handle_menu_option(_) :- % Handle invalid input
 
 % Define game modes as placeholders (you need to implement these).
 start_human_vs_human_game :-
-    write('yoo'),
     play_game.
 
 
@@ -101,6 +102,10 @@ start_human_vs_bot_game :-
     write('Starting Human vs Bot game...\n').
 
 start_bot_vs_bot_game :-
+    initial_state(GameState),
+    %display_board(GameState),
+    choose_move(GameState, black, 1, Move),
+    next_player(Player, NextPlayer),
     write('Starting Bot vs Bot game...\n').
 
 % Example of the main predicate to start the game.
