@@ -1,6 +1,6 @@
 choose_move_bot(GameState,Player, Level, Move):-
     valid_moves(GameState, Moves, Player),
-    choose_move(Level, GameState, Moves, Move).
+    choose_move_bot(Level, GameState, Moves, Move).
 
 choose_move_bot(1, _GameState, Moves, Move):-
     write('somezing'),

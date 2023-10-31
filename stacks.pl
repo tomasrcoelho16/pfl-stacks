@@ -154,6 +154,7 @@ game_cycle_bot(GameState-Player):-
     next_player(Player, NextPlayer),
     move_bot(GameState, Move, NewGameState),
     display_board(NewGameState),
+    !,
     game_cycle_bot(NewGameState-NextPlayer).
 
 play_game_hvb:-
@@ -168,17 +169,19 @@ game_cycle_hvb(GameState-Player):-
     write('CURRENT PLAYER:'),
     write(Player), nl,
     (
-    (Player = black -> choose_move(GameState, Player, Move, TwoMovesGamestate),
+    (Player = black , choose_move(GameState, Player, Move, TwoMovesGamestate),
         move(TwoMovesGamestate, Move, NewGameState),
-        next_player(Player, NextPlayer)
+        next_player(Player, NextPlayer),
+        write('next:'), write(NextPlayer), nl
     );
-    (Player = red -> choose_move_bot(GameState, Player, 1, Move),
+    (Player = red , write('TOU AQUI'), choose_move_bot(GameState, Player, 1, Move),
         move_bot(GameState, Move, NewGameState),
-        next_player(Player, NextPlayer)
-    ); 
-    write('yaza mfs')
+        next_player(Player, NextPlayer),
+        write('next:'), write(NextPlayer), nl
+    )
     ),
     display_board(NewGameState),
+    !,
     game_cycle_hvb(NewGameState-NextPlayer).
 
 
