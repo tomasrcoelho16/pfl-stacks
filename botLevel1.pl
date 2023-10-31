@@ -15,7 +15,8 @@ valid_moves(GameState, Moves, Player):-
     findall(Move,  (between(1, 5, FromCol), between(1, 7, FromRow),
              between(1, 5, ToCol), between(1, 7, ToRow),
              validate_move(GameState,Player, FromRow-FromCol, ToRow-ToCol, Move)
-            ), Moves).
+            ), Moves),
+            \+length(Moves, 0), write('teste'), !.
 
 validate_move(GameState,Player,FromRow-FromCol,ToRow-ToCol, Move) :-
     valid_position(FromRow, FromCol),
