@@ -14,7 +14,7 @@ choose_move(2, GameState, Moves, Move):-
 
 valid_moves(GameState, Moves, Player):-
     now(X),
-    setrand(X),4
+    setrand(X),
     findall(Move,  (between(1, 5, FromCol), between(1, 7, FromRow),
              between(1, 5, ToCol), between(1, 7, ToRow),
              validate_move(GameState,Player, FromRow-FromCol, ToRow-ToCol, Move)

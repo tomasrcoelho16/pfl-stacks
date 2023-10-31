@@ -97,7 +97,7 @@ start_human_vs_human_game :-
 
 
 start_human_vs_bot_game :-
-    write('Starting Human vs Bot game...\n').
+    play_game_hvb.
 
 start_bot_vs_bot_game :-
     play_game_bot.
@@ -148,10 +148,36 @@ game_cycle_bot(GameState-Player):-
     game_over(GameState, Winner), !.
 
 game_cycle_bot(GameState-Player):-
+    write('CURRENT PLAYER:'),
+    write(Player), nl,
     choose_move(GameState, Player, 1, Move),
     next_player(Player, NextPlayer),
     move_bot(GameState, Move, NewGameState),
     display_board(NewGameState),
     game_cycle_bot(NewGameState-NextPlayer).
+
+play_game_hvb:-
+    initial_state(GameState),
+    display_board(GameState),
+    game_cycle_bot(GameState-black).   
+
+game_cycle_hvb(GameState-Player):-
+    game_over(GameState, Winner), !.
+
+game_cycle_hvb(GameState-Player):-
+    write('CURRENT PLAYER:'),
+    write(Player), nl,
+    (
+    (Player = black -> choose_move(GameState, Player, Move, TwoMovesGamestate),
+        move(TwoMovesGamestate, Move, NewGameState),
+        next_player(Player, NextPlayer)
+    );
+    (choose_move(GameState, Player, 1, Move),
+        next_player(Player, NextPlayer),
+        move_bot(GameState, Move, NewGameState))
+    ),
+    display_board(NewGameState),
+    !,
+    game_cycle_hvb(NewGameState-NextPlayer).
 
 
