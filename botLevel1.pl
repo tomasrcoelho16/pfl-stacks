@@ -1,13 +1,13 @@
-choose_move(GameState,Player, Level, Move):-
+choose_move_bot(GameState,Player, Level, Move):-
     valid_moves(GameState, Moves, Player),
     choose_move(Level, GameState, Moves, Move).
 
-choose_move(1, _GameState, Moves, Move):-
+choose_move_bot(1, _GameState, Moves, Move):-
     write('somezing'),
     random_select(Move, Moves, _Rest),
     write(Move).
 
-choose_move(2, GameState, Moves, Move):-
+choose_move_bot(2, GameState, Moves, Move):-
     setof(Value-Mv, NewState^( member(Mv, Moves),
     move(GameState, Mv, NewState),
     evaluate_board(NewState, Value) ), [_V-Move|_]).

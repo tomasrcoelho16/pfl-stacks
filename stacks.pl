@@ -150,7 +150,7 @@ game_cycle_bot(GameState-Player):-
 game_cycle_bot(GameState-Player):-
     write('CURRENT PLAYER:'),
     write(Player), nl,
-    choose_move(GameState, Player, 1, Move),
+    choose_move_bot(GameState, Player, 1, Move),
     next_player(Player, NextPlayer),
     move_bot(GameState, Move, NewGameState),
     display_board(NewGameState),
@@ -159,7 +159,7 @@ game_cycle_bot(GameState-Player):-
 play_game_hvb:-
     initial_state(GameState),
     display_board(GameState),
-    game_cycle_bot(GameState-black).   
+    game_cycle_hvb(GameState-black).   
 
 game_cycle_hvb(GameState-Player):-
     game_over(GameState, Winner), !.
@@ -172,12 +172,13 @@ game_cycle_hvb(GameState-Player):-
         move(TwoMovesGamestate, Move, NewGameState),
         next_player(Player, NextPlayer)
     );
-    (choose_move(GameState, Player, 1, Move),
-        next_player(Player, NextPlayer),
-        move_bot(GameState, Move, NewGameState))
+    (Player = red -> choose_move_bot(GameState, Player, 1, Move),
+        move_bot(GameState, Move, NewGameState),
+        next_player(Player, NextPlayer)
+    ); 
+    write('yaza mfs')
     ),
     display_board(NewGameState),
-    !,
     game_cycle_hvb(NewGameState-NextPlayer).
 
 
