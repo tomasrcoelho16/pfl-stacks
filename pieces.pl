@@ -123,23 +123,27 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     ),
     ( (Player = black, PieceEnemy = black(_), (Yoo+ValEnemy) =< 4,    
         NewValue is Yoo + ValEnemy,
+        NewValue2 is Val-NPiecesInput,
         PieceTo = black(NewValue),
-        (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-NPiecesInput))
+        (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = black(NewValue2))
         ) ;
       (Player = red, PieceEnemy = red(_), (Yoo+ValEnemy) =< 4,
         NewValue is Yoo + ValEnemy,
+        NewValue2 is Val-NPiecesInput,
         PieceTo = red(NewValue),
-        (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = red(Val-NPiecesInput))
+        (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = red(NewValue2))
         ) ;
       (Player = red, (PieceEnemy = black(_); PieceEnemy = empty), (Yoo > ValEnemy),
          NewValue is Yoo,
+         NewValue2 is Val-NPiecesInput,
          PieceTo = red(Yoo),
-        ((NPiecesInput =:= Val -> PieceFrom = empty; PieceFrom = red(Val-NPiecesInput)))
+        ((NPiecesInput =:= Val -> PieceFrom = empty; PieceFrom = red(NewValue2)))
          ) ;
       (Player = black, (PieceEnemy = red(_); PieceEnemy = empty), (Yoo > ValEnemy),
         NewValue is Yoo,
+        NewValue2 is Val-NPiecesInput,
         PieceTo = black(Yoo),
-        (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-NPiecesInput))
+        (NPiecesInput - Val =:= 0 -> PieceFrom = empty ; PieceFrom = black(NewValue2))
         )
     ),
 
@@ -183,23 +187,27 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     (
         (Player = black, PieceEnemy = black(_), (1+ValEnemy) =< 4,    
         NewValue is 1 + ValEnemy,
+        NewValue3 is Val-1,
         PieceTo = black(NewValue),
-        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-1))
+        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = black(NewValue3))
         ) ;
         (Player = red, PieceEnemy = red(_), (1+ValEnemy) =< 4,
         NewValue is 1 + ValEnemy,
+        NewValue3 is Val-1,
         PieceTo = red(NewValue),
-        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = red(Val-1))
+        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = red(NewValue3))
         ) ;
         (Player = red, PieceEnemy = empty, (1 > ValEnemy),
          NewValue is 1,
+         NewValue3 is Val-1,
          PieceTo = red(1),
-        ((1 =:= Val -> PieceFrom = empty; PieceFrom = red(Val-1)))
+        ((1 =:= Val -> PieceFrom = empty; PieceFrom = red(NewValue3)))
          ) ;
       (Player = black, PieceEnemy = empty, (1 > ValEnemy),
         NewValue is 1,
+        NewValue3 is Val-1,
         PieceTo = black(1),
-        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-1))
+        ((1 - Val) =:= 0 -> PieceFrom = empty ; PieceFrom = black(NewValue3))
         )
     ),
     find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, 2, Paths, Player),
@@ -254,23 +262,27 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     (
         (Player = black, PieceEnemy2 = black(_), (1+ValEnemy2) =< 4,    
         NewValue2 is 1 + ValEnemy2,
+        NewValue4 is Val2-1,
         PieceTo2 = black(NewValue2),
-        ((1 - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = black(Val2-1))
+        ((1 - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = black(NewValue4))
         ) ;
         (Player = red, PieceEnemy2 = red(_), (1+ValEnemy2) =< 4,
         NewValue2 is 1 + ValEnemy2,
+        NewValue4 is Val2-1,
         PieceTo2 = red(NewValue2),
-        ((1 - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = red(Val2-1))
+        ((1 - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = red(NewValue4))
         ) ;
         (Player = red, (PieceEnemy2 = empty; PieceEnemy2 = black(_)), (Yoo > ValEnemy2),
          NewValue2 is Yoo,
+         NewValue4 is Val2-1,
          PieceTo2 = red(Yoo),
-        ((1 =:= Val2 -> PieceFrom2 = empty; PieceFrom2 = red(Val2-1)))
+        ((1 =:= Val2 -> PieceFrom2 = empty; PieceFrom2 = red(NewValue4)))
          ) ;
       (Player = black, (PieceEnemy2 = empty; PieceEnemy2 = red(_)), (Yoo > ValEnemy2),
         NewValue2 is Yoo,
+        NewValue4 is Val2-1,
         PieceTo2 = black(Yoo),
-        ((1 - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = black(Val2-1))
+        ((1 - Val2) =:= 0 -> PieceFrom2 = empty ; PieceFrom2 = black(NewValue4))
         )
     ),
 

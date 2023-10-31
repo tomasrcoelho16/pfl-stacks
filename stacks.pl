@@ -152,7 +152,6 @@ game_cycle_bot(GameState-Player):-
     next_player(Player, NextPlayer),
     move_bot(GameState, Move, NewGameState),
     display_board(NewGameState),
-    write('YAAAAAAAAAAAAAAAO'), nl,
     game_cycle_bot(NewGameState-NextPlayer).
 
 
