@@ -5,13 +5,13 @@
 % empty represents an empty cell.
 
 initial_state([
-    [red(3), red(1), red(2), empty, red(2)],
-    [black(2), empty, black(3), empty, empty],
+    [red(2), red(2), red(2), red(2), red(2)],
     [empty, empty, empty, empty, empty],
-    [empty, empty, red(1), red(1), red(1)],
-    [empty, red(1), empty, red(2), empty],
-    [red(3), empty, empty, black(3), empty],
-    [black(2), red(1), black(1), empty, black(2)]
+    [empty, empty, empty, empty, empty],
+    [empty, empty, empty, empty, empty],
+    [empty, empty, empty, empty, empty],
+    [empty, empty, empty, empty, empty],
+    [black(2), black(2), black(2), black(2), black(2)]
 ]).
 
 % Define a predicate to display the game board.
@@ -348,8 +348,8 @@ move(GameState, Move, NewGameState) :-
         ((PieceTo = black(_),
          EnemyPiece = red(_), NewValue > 0) ->
          write('aaaaa'),
-         %retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
-         %remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
+         retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
+         remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
          repeat,
          write('RetreatPositionsFixed'), nl,
          write(RetreatPositionsFixed), nl,

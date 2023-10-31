@@ -4,6 +4,8 @@
 :- consult(pieces).
 :- consult(ataqueCombinado).
 :- consult(botLevel1).
+:- use_module(library(random)).
+:- use_module(library(system), [now/1]).
 
 % Define the main predicate to start the game.
 play :-
@@ -95,22 +97,10 @@ start_human_vs_human_game :-
 
 
 start_human_vs_bot_game :-
-    initial_state(GameState),
-    display_board(GameState),
-    find_adjacent_pieces(GameState,black,4,3,AdjacentPieces),
-    write(AdjacentPieces),nl,
     write('Starting Human vs Bot game...\n').
 
 start_bot_vs_bot_game :-
-    initial_state(GameState),
-    %display_board(GameState),
-    choose_move(GameState, black, 1, Move),
-    next_player(Player, NextPlayer),
-    write('Starting Bot vs Bot game...\n').
-
-% Example of the main predicate to start the game.
-% You can modify this to fit your game's entry point.
-main :- play.
+    play_game_bot.
 
 play_game:-
     initial_state(GameState),
@@ -149,6 +139,20 @@ game_over(GameState, Winner) :-
         write('Black Wins!'), nl
     ).
 
+play_game_bot:-
+    initial_state(GameState),
+    display_board(GameState),
+    game_cycle_bot(GameState-black).   
 
+game_cycle_bot(GameState-Player):-
+    game_over(GameState, Winner), !.
+
+game_cycle_bot(GameState-Player):-
+    choose_move(GameState, Player, 1, Move),
+    next_player(Player, NextPlayer),
+    move_bot(GameState, Move, NewGameState),
+    display_board(NewGameState),
+    write('YAAAAAAAAAAAAAAAO'), nl,
+    game_cycle_bot(NewGameState-NextPlayer).
 
 
