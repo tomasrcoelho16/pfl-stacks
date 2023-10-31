@@ -38,30 +38,46 @@ validate_move(GameState,Player,FromRow-FromCol,ToRow-ToCol, Move) :-
     nth1(ToRow, GameState, Row1),
     nth1(ToCol, Row1, PieceTo),
     piece_value(PieceTo, PieceToVal),
+    %write('   From: '),
+    %write(FromRow), write('-'),
+    %write(FromCol),
+    %write('   To: '),
+    %write(ToRow), write('-'),
+    %write(ToCol), 
+    %write(' Val:'), write(Val),
+    %write(' Piece:'), write(Piece),
     (
-        ((Val =:= 1) -> NPiecesMoving is 1);
+        (Val =:= 1) -> (NPiecesMoving = 1) ;
         random(1, Val, NPiecesMoving)
     ),
+    
+
+    calculate_possible(NPiecesMoving,Possible),
+    (abs(FromRow - ToRow) =< Possible, abs(FromCol - ToCol) =< Possible),
     (
         (Player = red, PieceTo = red(_), (NPiecesMoving + PieceToVal =< 4),
-        PieceTo2 = red(NPiecesMoving + PieceToVal),
-        (NPiecesMoving - Val =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-NPiecesMoving))
+        NewValue is NPiecesMoving + PieceToVal,
+        %NewValue2 is Val-NPiecesMoving,
+        PieceTo2 = red(NewValue),
+        (NPiecesMoving - Val =:= 0 -> PieceFrom = empty ; PieceFrom = red(Val-NPiecesMoving))
         );
         (Player = black, PieceTo = black(_), (NPiecesMoving + PieceToVal =< 4),
-        PieceTo2 = black(NPiecesMoving + PieceToVal),
+        NewValue is NPiecesMoving + PieceToVal,
+        %NewValue2 is Val-NPiecesMoving,
+        PieceTo2 = black(NewValue),
         (NPiecesMoving - Val =:= 0 -> PieceFrom = empty ; PieceFrom = black(Val-NPiecesMoving))
         );
         (Player = red, (PieceTo = black(_); PieceTo = empty), (NPiecesMoving > PieceToVal),
+        %NewValue2 is Val-NPiecesMoving,
          PieceTo2 = red(NPiecesMoving),
         ((NPiecesMoving =:= Val -> PieceFrom = empty; PieceFrom = red(Val-NPiecesMoving)))
         );
         (Player = black, (PieceTo = red(_); PieceTo = empty), (NPiecesMoving > PieceToVal),
+        %NewValue2 is Val-NPiecesMoving,
          PieceTo2 = black(NPiecesMoving),
         ((NPiecesMoving =:= Val -> PieceFrom = empty; PieceFrom = black(Val-NPiecesMoving)))
         )
     ),
-    calculate_possible(NPiecesMoving,Possible),
-    (abs(FromRow - ToRow) =< Possible, abs(FromCol - ToCol) =< Possible),
     find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player),
     (Paths \= []),
     From = (FromRow,FromCol),
