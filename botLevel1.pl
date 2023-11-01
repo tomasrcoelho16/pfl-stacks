@@ -8,7 +8,7 @@ choose_move_bot(1,_Player, _GameState, Moves, Move):-
 choose_move_bot(2,Player, GameState, Moves, Move):-
     setof(Value-Mv, NewState^( member(Mv, Moves),
     move_bot(GameState, Mv, NewState),
-    evaluate_board(NewState, Player, Value)), [_V-Move|_]).
+    evaluate_board(GameState, NewState, Player, Value)), [_V-Move|_]).
 
 valid_moves(GameState, Moves, Player):-
     now(X),
@@ -133,28 +133,35 @@ move_bot(GameState, Move, NewGameState) :-
 
 
 
-evaluate_board(NewState, Player, Value):-
+evaluate_board(GameState, NewState, Player, Value):-
     sum_red_pieces_on_row7(NewState, SumRed7), !,
     sum_black_pieces_on_row1(NewState, SumBlack1), !,
     sum_red_pieces(NewState, SumRedTotal), !,  
+    sum_red_pieces(GameState, SumRed), !,  
+    sum_black_pieces(GameState, SumBlack), !,
     sum_black_pieces(NewState, SumBlackTotal), !,
     (
-        (Player = black, SumRedTotal < 5, PointsVic is -150
+        (Player = black, SumRedTotal < 5, PointsVic is -200
         );
-        (Player = black, SumBlack1 >= 4, PointsVic is -150 
+        (Player = black, SumBlack1 >= 4, PointsVic is -200 
         );
-        (Player = red, SumRed7 >= 4, PointsVic is -150 
+        (Player = red, SumRed7 >= 4, PointsVic is -200 
         );
-        (Player = red, SumBlackTotal < 5, PointsVic is -150
+        (Player = red, SumBlackTotal < 5, PointsVic is -200
         );
         PointsVic is 0
+    ),
+    (
+        (Player = black, (SumRedTotal =\= SumRed), Extra is -50, write('yayyyyyyyyyyyyyyyyyyyy'));
+        (Player = red, (SumBlackTotal =\= SumBlack), Extra is -50, write('yooooooooooooooooooooo'));
+        Extra is 0
     ),
     (
         (Player = black, sum_black_pieces_bot(NewState, Val))
         ; (Player = red, sum_red_pieces_bot(NewState, Val));
         Val is 0
     ),
-    Value is -Val + PointsVic.
+    Value is -Val + PointsVic + Extra.
 
 sum_black_pieces_bot(Board, Sum) :-
     sum_black_pieces_bot(Board, 0,_Count, Sum).
