@@ -97,15 +97,27 @@ start_human_vs_human_game :-
 
 
 start_human_vs_bot_game :-
-    %play_game_hvb.
-    initial_state(GameState),
-    validate_move(GameState,black,7-2,5-2, Move),
-    move_bot(GameState, Move, NewState),
-    evaluate_board(NewState, black,Value),
-    write(Value).
-
+    repeat,
+    write('Difficulty to play against: '), nl,
+    write('1 - Random Moves'), nl,
+    write('2 - Greedy Moves'), nl,
+    read(Input),
+    (
+        (Input == 1; Input == 2);
+        write('Invalid input.'), nl, fail
+    ),
+    play_game_hvb(Input).
 start_bot_vs_bot_game :-
-    play_game_bot.
+    repeat,
+    write('Difficulty: '), nl,
+    write('1 - Random Moves'), nl,
+    write('2 - Greedy Moves'), nl,
+    read(Input),
+    (
+        (Input == 1; Input == 2);
+        write('Invalid input.'), nl, fail
+    ),
+    play_game_bot(Input).
 
 play_game:-
     initial_state(GameState),
@@ -144,32 +156,32 @@ game_over(GameState, Winner) :-
         write('Black Wins!'), nl
     ).
 
-play_game_bot:-
+play_game_bot(Level):-
     initial_state(GameState),
     display_board(GameState),
-    game_cycle_bot(GameState-black).   
+    game_cycle_bot(GameState-black,Level).   
 
-game_cycle_bot(GameState-Player):-
+game_cycle_bot(GameState-Player, _Level):-
     game_over(GameState, Winner), !.
 
-game_cycle_bot(GameState-Player):-
+game_cycle_bot(GameState-Player, Level):-
     write('CURRENT PLAYER:'),
     write(Player), nl,
-    choose_move_bot(GameState, Player, 2, Move),
+    choose_move_bot(GameState, Player, Level, Move),
     move_bot(GameState, Move, NewGameState),
     next_player(Player, NextPlayer),
     display_board(NewGameState),
-    game_cycle_bot(NewGameState-NextPlayer).
+    game_cycle_bot(NewGameState-NextPlayer, Level).
 
-play_game_hvb:-
+play_game_hvb(Level):-
     initial_state(GameState),
     display_board(GameState),
-    game_cycle_hvb(GameState-black).   
+    game_cycle_hvb(GameState-black,Level).   
 
-game_cycle_hvb(GameState-Player):-
+game_cycle_hvb(GameState-Player,Level):-
     game_over(GameState, Winner), !.
 
-game_cycle_hvb(GameState-Player):-
+game_cycle_hvb(GameState-Player,Level):-
     write('CURRENT PLAYER:'),
     write(Player), nl,
     (
@@ -186,6 +198,6 @@ game_cycle_hvb(GameState-Player):-
     ),
     display_board(NewGameState),
     !,
-    game_cycle_hvb(NewGameState-NextPlayer).
+    game_cycle_hvb(NewGameState-NextPlayer,Level).
 
 
