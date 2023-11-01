@@ -1,27 +1,25 @@
-choose_move_bot(GameState,Player, Level, Move):-
+choose_move_bot(GameState, Player, Level, Move):-
     valid_moves(GameState, Moves, Player),
-    choose_move_bot(Level, GameState, Moves, Move).
+    choose_move_bot(Level, Player, GameState, Moves, Move).
 
-choose_move_bot(1, _GameState, Moves, Move):-
-    write('somezing'),
-    random_select(Move, Moves, _Rest),
-    write(Move).
+choose_move_bot(1,_Player, _GameState, Moves, Move):-
+    random_select(Move, Moves, _Rest).
 
-choose_move_bot(2, GameState, Moves, Move):-
+choose_move_bot(2,Player, GameState, Moves, Move):-
     setof(Value-Mv, NewState^( member(Mv, Moves),
-    move(GameState, Mv, NewState),
-    evaluate_board(NewState, Value) ), [_V-Move|_]).
+    move_bot(GameState, Mv, NewState),
+    evaluate_board(NewState, Player, Value)), [_V-Move|_]).
 
 valid_moves(GameState, Moves, Player):-
     now(X),
     setrand(X),
     findall(Move,  (between(1, 5, FromCol), between(1, 7, FromRow),
-             between(1, 5, ToCol), between(1, 7, ToRow),
-             validate_move(GameState,Player, FromRow-FromCol, ToRow-ToCol, Move)
+             between(1, 5, ToCol), between(1, 7, ToRow), between(1, 4, NPiecesMoving),
+             validate_move(GameState,Player, FromRow-FromCol, ToRow-ToCol,NPiecesMoving, Move)
             ), Moves),
-            \+length(Moves, 0), write('teste'), !.
+            \+length(Moves, 0), !.
 
-validate_move(GameState,Player,FromRow-FromCol,ToRow-ToCol, Move) :-
+validate_move(GameState,Player,FromRow-FromCol,ToRow-ToCol,NPiecesMoving, Move) :-
     (FromRow \= ToRow ; FromCol \= ToCol),
     valid_position(FromRow, FromCol),
     valid_position(ToRow, ToCol),
@@ -34,15 +32,10 @@ validate_move(GameState,Player,FromRow-FromCol,ToRow-ToCol, Move) :-
         (Player = black, Piece = black(_))
     ),
     piece_value(Piece, Val),
+    (NPiecesMoving =< Val),
     nth1(ToRow, GameState, Row1),
     nth1(ToCol, Row1, PieceTo),
     piece_value(PieceTo, PieceToVal),
-    (
-        (Val =:= 1) -> (NPiecesMoving = 1) ;
-        random(1, Val, NPiecesMoving)
-    ),
-    
-
     calculate_possible(NPiecesMoving,Possible),
     (abs(FromRow - ToRow) =< Possible, abs(FromCol - ToCol) =< Possible),
     (
@@ -78,7 +71,6 @@ validate_move(GameState,Player,FromRow-FromCol,ToRow-ToCol, Move) :-
 
 move_bot(GameState, Move, NewGameState) :-
     Move = (From, To, PieceFrom, PieceTo),
-
     From = (FromRow, FromCol),
     To = (ToRow, ToCol),
 
@@ -140,4 +132,56 @@ move_bot(GameState, Move, NewGameState) :-
     replace(TempGameState, ToRow, ToCol, PieceTo, NewGameState).
 
 
+
+evaluate_board(NewState, Player, Value):-
+    sum_red_pieces_on_row7(NewState, SumRed7), !,
+    sum_black_pieces_on_row1(NewState, SumBlack1), !,
+    sum_red_pieces(NewState, SumRedTotal), !,  
+    sum_black_pieces(NewState, SumBlackTotal), !,
+    (
+        (Player = black, SumRedTotal < 5, PointsVic is -150
+        );
+        (Player = black, SumBlack1 >= 4, PointsVic is -150 
+        );
+        (Player = red, SumRed7 >= 4, PointsVic is -150 
+        );
+        (Player = red, SumBlackTotal < 5, PointsVic is -150
+        );
+        PointsVic is 0
+    ),
+    (
+        (Player = black, sum_black_pieces_bot(NewState, Val))
+        ; (Player = red, sum_red_pieces_bot(NewState, Val));
+        Val is 0
+    ),
+    Value is -Val + PointsVic.
+
+sum_black_pieces_bot(Board, Sum) :-
+    sum_black_pieces_bot(Board, 0,_Count, Sum).
+
+sum_black_pieces_bot([], Sum,_Count, Sum).
+
+sum_black_pieces_bot([Row | Rest], PartialSum, Count, Sum) :-
+    (
+        (integer(Count) -> NewCount is Count - 1);
+        NewCount is 7
+    ),
+    count_black_pieces_in_row(Row, RowSum),
+    NewPartialSum is PartialSum + (RowSum*NewCount),
+    sum_black_pieces_bot(Rest, NewPartialSum,NewCount, Sum).
+
+
+sum_red_pieces_bot(Board, Sum) :-
+    sum_red_pieces_bot(Board, 0,_Count, Sum).
+
+sum_red_pieces_bot([], Sum,_Count, Sum).
+
+sum_red_pieces_bot([Row | Rest], PartialSum, Count, Sum) :-
+    (
+        (integer(Count) -> NewCount is Count + 1);
+        NewCount is 1
+    ),
+    count_red_pieces_in_row(Row, RowSum),
+    NewPartialSum is PartialSum + (RowSum*NewCount),
+    sum_red_pieces_bot(Rest, NewPartialSum,NewCount, Sum).
 

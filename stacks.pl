@@ -97,7 +97,12 @@ start_human_vs_human_game :-
 
 
 start_human_vs_bot_game :-
-    play_game_hvb.
+    %play_game_hvb.
+    initial_state(GameState),
+    validate_move(GameState,black,7-2,5-2, Move),
+    move_bot(GameState, Move, NewState),
+    evaluate_board(NewState, black,Value),
+    write(Value).
 
 start_bot_vs_bot_game :-
     play_game_bot.
@@ -150,11 +155,10 @@ game_cycle_bot(GameState-Player):-
 game_cycle_bot(GameState-Player):-
     write('CURRENT PLAYER:'),
     write(Player), nl,
-    choose_move_bot(GameState, Player, 1, Move),
-    next_player(Player, NextPlayer),
+    choose_move_bot(GameState, Player, 2, Move),
     move_bot(GameState, Move, NewGameState),
+    next_player(Player, NextPlayer),
     display_board(NewGameState),
-    !,
     game_cycle_bot(NewGameState-NextPlayer).
 
 play_game_hvb:-
