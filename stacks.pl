@@ -121,7 +121,7 @@ start_bot_vs_bot_game :-
 
 play_game:-
     initial_state(GameState),
-    display_board(GameState),
+    display_game(GameState),
     game_cycle(GameState-black).   
 
 game_cycle(GameState-Player):-
@@ -133,7 +133,7 @@ game_cycle(GameState-Player):-
     choose_move(GameState, Player, Move, TwoMovesGamestate),
     move(TwoMovesGamestate, Move, NewGameState),
     next_player(Player, NextPlayer),
-    display_board(NewGameState),
+    display_game(NewGameState),
     !,
     game_cycle(NewGameState-NextPlayer).
 
@@ -158,7 +158,7 @@ game_over(GameState, Winner) :-
 
 play_game_bot(Level):-
     initial_state(GameState),
-    display_board(GameState),
+    display_game(GameState),
     game_cycle_bot(GameState-black,Level).   
 
 game_cycle_bot(GameState-Player, _Level):-
@@ -170,12 +170,12 @@ game_cycle_bot(GameState-Player, Level):-
     choose_move_bot(GameState, Player, Level, Move),
     move_bot(GameState, Move, NewGameState),
     next_player(Player, NextPlayer),
-    display_board(NewGameState),
+    display_game(NewGameState),
     game_cycle_bot(NewGameState-NextPlayer, Level).
 
 play_game_hvb(Level):-
     initial_state(GameState),
-    display_board(GameState),
+    display_game(GameState),
     game_cycle_hvb(GameState-black,Level).   
 
 game_cycle_hvb(GameState-Player,Level):-
@@ -196,7 +196,7 @@ game_cycle_hvb(GameState-Player,Level):-
         write('next:'), write(NextPlayer), nl
     )
     ),
-    display_board(NewGameState),
+    display_game(NewGameState),
     !,
     game_cycle_hvb(NewGameState-NextPlayer,Level).
 

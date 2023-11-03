@@ -15,7 +15,7 @@ initial_state([
 ]).
 
 % Define a predicate to display the game board.
-display_board(Board) :-
+display_game(Board) :-
     nl,
     display_columns,
     display_rows(Board, 1),
@@ -237,7 +237,7 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     move(GameState, Move, TempGameState),
 
 
-    display_board(TempGameState),
+    display_game(TempGameState),
     repeat,
     write('CURRENT PLAYER: '),
     write(Player),nl,
