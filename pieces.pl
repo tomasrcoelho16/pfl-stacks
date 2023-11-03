@@ -8,10 +8,10 @@ initial_state([
     [red(2), red(2), red(2), red(2), red(2)],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
+    [empty, empty, red(1), empty, empty],
+    [empty, black(1), empty, black(1), empty],
     [empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty],
-    [black(2), black(2), black(2), black(2), black(2)]
+    [black(2), black(1), black(2), black(2), black(2)]
 ]).
 
 % Define a predicate to display the game board.
@@ -66,10 +66,14 @@ choose_move(GameState, Player, Move, TwoMovesGamestate) :-
     write('1 - Move a single stack.') ,nl,
     write('2 - Move two individual pieces up to 2 spaces each.'),nl,
     read(Input),
-    (
-        (Input =:= 1, single_move(GameState,Player,Move, TwoMovesGamestate));
-        (Input =:= 2, double_move(GameState,Player,Move, TwoMovesGamestate));
-        write('Thats not a valid option.'), nl, fail
+    (integer(Input) ->
+        (Input =:= 1 -> single_move(GameState, Player, Move, TwoMovesGamestate)
+        ; Input =:= 2 -> double_move(GameState, Player, Move, TwoMovesGamestate)
+        ;
+          fail % Failing here causes repeat to try again
+        )
+    ; 
+      fail % Failing here causes repeat to try again
     )
     .
 
@@ -78,7 +82,10 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     write('Select a piece or stack (e.g., a1): '),
     read(FromInput),
 
-    user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
+    (integer(FromInput) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
+
+    (user_input_to_coordinates(FromInput, (FromRow, FromCol)) -> true ; write('Invalid input format. Please use the format "a1" or similar.'), nl,
+        fail),
 
     nth1(FromRow, GameState, Row),
     nth1(FromCol, Row, Piece),
@@ -98,9 +105,14 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
 
     % ATAUQE COMBINADO GOES HERE
 
-    user_input_to_coordinates(ToInput, (ToRow, ToCol)),
+    (integer(ToInput) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
+
+    (user_input_to_coordinates(ToInput, (ToRow, ToCol)) -> true ; write('Invalid input format. Please use the format "a1" or similar.'), nl,
+        fail),
 
     (((Val > 1) -> write('How many pieces do you want (e.g., 1, 2, 3, 4): '), read(NPiecesInput)); NPiecesInput = 1),
+
+    (\+integer(NPiecesInput) -> write('Invalid input format.'), nl, fail ; true),
 
     (NPiecesInput =< Val),
 
@@ -156,7 +168,10 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     write('Select the first piece (e.g., a1): '),
     read(FromInput),
 
-    user_input_to_coordinates(FromInput, (FromRow, FromCol)), 
+     (integer(FromInput) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
+
+    (user_input_to_coordinates(FromInput, (FromRow, FromCol)) -> true ; write('Invalid input format. Please use the format "a1" or similar.'), nl,
+        fail),
 
     nth1(FromRow, GameState, Row),
     nth1(FromCol, Row, Piece),
@@ -176,7 +191,10 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
 
     % ATAUQE COMBINADO GOES HERE
 
-    user_input_to_coordinates(ToInput, (ToRow, ToCol)),
+    (integer(ToInput) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
+
+    (user_input_to_coordinates(ToInput, (ToRow, ToCol)) -> true ; write('Invalid input format. Please use the format "a1" or similar.'), nl,
+        fail),
 
     (abs(FromRow - ToRow) =< 2, abs(FromCol - ToCol) =< 2),
 
@@ -226,7 +244,11 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     write('Select the second piece, you cannot move the same piece again(e.g., a1): '),
     read(FromInput2),
 
-    user_input_to_coordinates(FromInput2, (FromRow2, FromCol2)), 
+    (integer(FromInput2) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
+
+    (user_input_to_coordinates(FromInput2, (FromRow2, FromCol2)) -> true ; write('Invalid input format. Please use the format "a1" or similar.'), nl,
+        fail),
+
     (ToRow =\= FromRow2; ToCol =\= FromCol2),
     nth1(FromRow2, TempGameState, Row2),
     nth1(FromCol2, Row2, Piece2),
@@ -243,7 +265,11 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     write('Select a destination (e.g., b2): '),
     read(ToInput2),      % Read the coordinate for the destination
 
-    user_input_to_coordinates(ToInput2, (ToRow2, ToCol2)),
+    (integer(ToInput2) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
+
+    (user_input_to_coordinates(ToInput2, (ToRow2, ToCol2)) -> true ; write('Invalid input format. Please use the format "a1" or similar.'), nl,
+        fail),
+
     (abs(FromRow2 - ToRow2) =< 2, abs(FromCol2 - ToCol2) =< 2),
 
     nth1(ToRow2, TempGameState, RowEnemy2),
@@ -334,7 +360,6 @@ move(GameState, Move, NewGameState) :-
     (
         ((PieceTo = red(_),
          EnemyPiece = black(_), NewValue > 0) ->
-         write('bbbbb'),
          retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
          remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
          repeat,
@@ -345,7 +370,9 @@ move(GameState, Move, NewGameState) :-
          write_retreat(RetreatPositionsFixed),
          write(')'), nl,
          read(RetreatInput),
-         user_input_to_coordinates(RetreatInput, (RetreatRow, RetreatCol)),
+        (integer(RetreatInput) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
+        (user_input_to_coordinates(RetreatInput, (RetreatRow, RetreatCol)) -> true ; write('Invalid input format. Please use the format "a1" or similar.'), nl,
+        fail),
          member([RetreatRow, RetreatCol], RetreatPositionsFixed),
         nth1(RetreatRow, GameState, RetreatRowList),
         nth1(RetreatCol, RetreatRowList, RetreatSpace),
@@ -359,7 +386,6 @@ move(GameState, Move, NewGameState) :-
          );
         ((PieceTo = black(_),
          EnemyPiece = red(_), NewValue > 0) ->
-         write('aaaaa'),
          retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
          remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
          repeat,
@@ -370,7 +396,9 @@ move(GameState, Move, NewGameState) :-
          write_retreat(RetreatPositionsFixed),
          write(')'), nl,
          read(RetreatInput),
-         user_input_to_coordinates(RetreatInput, (RetreatRow, RetreatCol)),
+         (integer(RetreatInput) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
+        (user_input_to_coordinates(RetreatInput, (RetreatRow, RetreatCol)) -> true ; write('Invalid input format. Please use the format "a1" or similar.'), nl,
+        fail),
          member([RetreatRow, RetreatCol], RetreatPositionsFixed),
          nth1(RetreatRow, GameState, RetreatRowList),
          nth1(RetreatCol, RetreatRowList, RetreatSpace),

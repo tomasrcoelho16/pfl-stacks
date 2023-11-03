@@ -15,6 +15,7 @@ is_possible_combinateds(GameState, Player,Val,NewVal,AdjacentPieces, FromRow, Fr
     %read user input, if yes, do the things after, if no, (; true)
 
     read(UserInput),
+    (UserInput == yes ; UserInput == no),
     (UserInput == yes ->
 
         write('Choose what pieces you want to combine your attack with: '),
@@ -24,6 +25,7 @@ is_possible_combinateds(GameState, Player,Val,NewVal,AdjacentPieces, FromRow, Fr
         write(FriendlyOptionsCleaned), nl,
         write('Enter the position you want to use: '),
         read(SelectedPosition),
+        (integer(SelectedPosition) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
         read_position(FriendlyOptionsCleaned, SelectedPosition, OtherPieces),
         write('You selected: '), write(SelectedPosition), nl,
         user_input_to_coordinates(SelectedPosition, (SelPosRow, SelPosCol)),
@@ -38,6 +40,7 @@ is_possible_combinateds(GameState, Player,Val,NewVal,AdjacentPieces, FromRow, Fr
         replace(GameState, SelPosRow, SelPosCol, empty, TempGameState),
         (MaxLength > 1 -> write('Want to combine another one? Select from these groups: '), write(OtherPieces), write(' - or "no".'),
             read(SelectedPosition2),
+            (integer(SelectedPosition2) -> write('Invalid input format. Please use the format "a1" or "no" if you dont want to combine more.'), nl, fail ; true),
             (SelectedPosition2 \= no -> ((SelectedPosition2 \= SelectedPosition),
             read_position(OtherPieces, SelectedPosition2, OtherPieces2),
             write('You selected: '), write(SelectedPosition2), nl,
@@ -54,6 +57,7 @@ is_possible_combinateds(GameState, Player,Val,NewVal,AdjacentPieces, FromRow, Fr
         ),
         (MaxLength2 > 2 -> write('Want to combine another one? Select from these groups: '), write(OtherPieces2), write(' - or "no".'),
             read(SelectedPosition3),
+            (integer(SelectedPosition3) -> write('Invalid input format. Please use the format "a1" or "no" if you dont want to combine more.'), nl, fail ; true),
             (SelectedPosition3 \= no -> ((SelectedPosition3 \= SelectedPosition, SelectedPosition3 \= SelectedPosition2),
             read_position(OtherPieces2, SelectedPosition3, OtherPieces3),
             write('You selected: '), write(SelectedPosition3), nl,
