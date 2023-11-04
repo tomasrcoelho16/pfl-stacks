@@ -1,9 +1,9 @@
 :- use_module(library(lists)).
 
+% initial_state(-Board)
 % Define a piece as a compound term with color (red or black) and stack size.
 % Example: red(2) represents a stack of 2 red pieces.
 % empty represents an empty cell.
-
 initial_state([
     [red(2), red(2), red(2), red(2), red(2)],
     [empty, empty, empty, empty, empty],
