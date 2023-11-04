@@ -1,14 +1,12 @@
+% is_possible_combinateds(
+%   +GameState, +Player, +Val, -NewVal, +AdjacentPieces, +FromRow, +FromCol, +ToRow, +ToCol, +Paths, -GameStateCombinated)
+% Determines whether it's possible to combine an attack in the game and performs the necessary checks and actions.
+% If the player chooses to combine their attack, this predicate calculates the new game state and the total value of combined pieces.
 is_possible_combinateds(GameState, Player,Val,NewVal,AdjacentPieces, FromRow, FromCol, ToRow, ToCol, Paths, GameStateCombinated):-
-    find_adjacent_pieces(GameState,Player,ToRow,ToCol,AdjacentPieces),  
-    write('AdjacentPieces'), nl,
-    write(AdjacentPieces), nl,
+    find_adjacent_pieces(GameState,Player,ToRow,ToCol,AdjacentPieces),
     save_coordinates(Paths, PenultimeCoordinates, FromRow, FromCol), nl,
-    write('PenultimeCoordinates'), nl,
     remove_duplicates(PenultimeCoordinates, PenultimeCoordinatesFixed),
-    write(PenultimeCoordinatesFixed), nl,
     find_possible_combinations(PenultimeCoordinatesFixed, AdjacentPieces, PossibleCombinations, FromRow, FromCol),
-    write('Possible Combinations:'), nl,
-    write(PossibleCombinations), nl,
     PossibleCombinations \= [],
     write('You can combine your attack! Do you want to? (yes/no)'), nl,
 
@@ -33,8 +31,6 @@ is_possible_combinateds(GameState, Player,Val,NewVal,AdjacentPieces, FromRow, Fr
         nth1(SelPosCol, Row2, PieceSelected),
         piece_value(PieceSelected, ValSelected),
         Skrt is Val + ValSelected,
-        write('Writing Skrt:'),
-        write(Skrt), nl,
         ValSelected + Val =< 4,
         max_list_length(OtherPieces, MaxLength),
         replace(GameState, SelPosRow, SelPosCol, empty, TempGameState),
@@ -50,7 +46,6 @@ is_possible_combinateds(GameState, Player,Val,NewVal,AdjacentPieces, FromRow, Fr
             piece_value(PieceSelected2, ValSelected2),
             ValSelected2 + Val + ValSelected =< 4,
             Skrt2 is (ValSelected2 + Val + ValSelected),
-            write(Skrt2),nl,
             max_list_length(OtherPieces2, MaxLength2),
             replace(TempGameState, SelPosRow2, SelPosCol2, empty, NewTempGameState)) ; MaxLength2 = 0, true) 
             ; MaxLength2 = 0,true
@@ -67,7 +62,6 @@ is_possible_combinateds(GameState, Player,Val,NewVal,AdjacentPieces, FromRow, Fr
             piece_value(PieceSelected3, ValSelected3),
             ValSelected2 + Val + ValSelected + ValSelected3 =< 4,
             Skrt3 is (ValSelected2 + Val + ValSelected + ValSelected3),
-            write(Skrt3),nl,
             replace(NewTempGameState, SelPosRow3, SelPosCol3, empty, UfGameState)) ; true)
             ; true
         ),
@@ -76,24 +70,22 @@ is_possible_combinateds(GameState, Player,Val,NewVal,AdjacentPieces, FromRow, Fr
             (integer(Skrt2), NewVal = Skrt2 , GameStateCombinated = NewTempGameState);
             (NewVal = Skrt, GameStateCombinated = TempGameState)
         )
-        % Separate pieces based on the list
-        %separate_pieces_by_list(SelectedPosition, FriendlyOptionsCleaned, SameListPieces, DifferentListPieces),
-        %write('Same List Pieces: '), write(SameListPieces), nl,
-        %write('Different List Pieces: '), write(DifferentListPieces), nl
 
     ; % If the user enters 'no' or other input, the code execution can continue
-        write(UserInput), true
+        true
     )
     .
-    %here I want to present the user with the different options
 
 
-% Define a predicate to find possible combinations
+% find_possible_combinations(+PenultimateCoordinates, +AdjacentPieces, -PossibleCombinations, +FromRow, +FromCol)
+% Find possible combinations of adjacent pieces for each penultimate coordinate.
 find_possible_combinations([], _, [], FromRow, FromCol).
 find_possible_combinations([PenultimeCoord | RestPenultimeCoords], AdjacentPieces, [PenultimeCoord-CoordAdjacentPieces | RestPossibleCombinations], FromRow, FromCol) :-
     find_adj_pieces_for_coord(PenultimeCoord, AdjacentPieces, CoordAdjacentPieces, FromRow, FromCol),
     find_possible_combinations(RestPenultimeCoords, AdjacentPieces, RestPossibleCombinations, FromRow, FromCol).
 
+% find_adj_pieces_for_coord(+PenultimeCoord, +AdjacentPieces, -CoordAdjacentPieces, +FromRow, +FromCol)
+% Find adjacent pieces for a given penultimate coordinate.
 find_adj_pieces_for_coord(_, [], [], FromRow, FromCol).
 find_adj_pieces_for_coord(PenultimeCoord, [Element | RestAdjacentPieces], CoordAdjacentPieces, FromRow, FromCol) :-
     [Piece-Coord] = Element,
@@ -106,7 +98,8 @@ find_adj_pieces_for_coord(PenultimeCoord, [Element | RestAdjacentPieces], CoordA
 
     
 
-% Predicate to save the last or penultimate coordinates of paths
+% save_coordinates(+Paths, -Coordinates, +FromRow, +FromCol)
+% Extract and save the last or penultimate coordinates from a list of paths.
 save_coordinates([], [], _, _).
 save_coordinates([Path|Rest], Coordinates, FromRow, FromCol) :-
     (length(Path, 1) ->  % If the length of the path is 1
@@ -119,6 +112,8 @@ save_coordinates([Path|Rest], Coordinates, FromRow, FromCol) :-
     ),
     save_coordinates(Rest, RestCoordinates, FromRow, FromCol).
 
+% remove_duplicates(+List, -NoDuplicatesList)
+% Remove duplicate elements from a list.
 remove_duplicates([], []).
 remove_duplicates([H | T], Result) :-
     (member(H, T) -> 
@@ -128,17 +123,14 @@ remove_duplicates([H | T], Result) :-
         remove_duplicates(T, RestResult)
     ).
 
+% are_adjacent(+Coord1, +Coord2)
+% Check if two coordinates are adjacent on a grid.
 are_adjacent((X, Y), (X1, Y1)) :-
     abs(X - X1) =< 1,
     abs(Y - Y1) =< 1.
 
-write_test([Element | RestAdjacentPieces]):-
-    [Piece-Coord] = Element,
-    write('Piece: '), write(Piece), nl,
-    write('Coord: '), write(Coord), nl,
-    write(RestAdjacentPieces).
-
-
+% coords_to_user_friendly(+CoordsList, -FriendlyOptions)
+% Convert a list of coordinates to user-friendly representations.
 coords_to_user_friendly([], []).
 coords_to_user_friendly([Coord | RestCoords], [FriendlyOption | RestFriendlyOptions]) :-
     (Row, Col) = Coord,
@@ -149,6 +141,8 @@ coords_to_user_friendly([Coord | RestCoords], [FriendlyOption | RestFriendlyOpti
     atom_concat(Char, Yam, FriendlyOption),
     coords_to_user_friendly(RestCoords, RestFriendlyOptions).
 
+% format_possible_combinations(+CombinationsList, -FriendlyOptionsList)
+% Format a list of possible combinations into user-friendly representations.
 format_possible_combinations([], []).
 format_possible_combinations([Element | RestCombinations], [FriendlyOptions | RestFriendlyOptions]) :-
     Element = (_-Pieces),
@@ -156,11 +150,14 @@ format_possible_combinations([Element | RestCombinations], [FriendlyOptions | Re
     coords_to_user_friendly(ExtractedCoords, FriendlyOptions),
     format_possible_combinations(RestCombinations, RestFriendlyOptions).
 
+% extract_coordinates(+PiecesList, -CoordsList)
+% Extract coordinates from a list of pieces.
 extract_coordinates([], []).
 extract_coordinates([_-Coord | RestPieces], [Coord | RestCoords]) :-
     extract_coordinates(RestPieces, RestCoords).
 
-% Remove empty lists and duplicates from a list of lists
+% remove_empty_and_duplicates(+List, -CleanedList)
+% Remove empty lists and duplicate elements from a list of lists.
 remove_empty_and_duplicates([], []).
 remove_empty_and_duplicates([H|T], CleanedList) :-
     (is_list(H), H = [] -> remove_empty_and_duplicates(T, CleanedList)
@@ -168,6 +165,8 @@ remove_empty_and_duplicates([H|T], CleanedList) :-
     ; CleanedList = [H|RestCleaned], remove_empty_and_duplicates(T, RestCleaned)
     ).
 
+% adjacent(+X, +Y, -AdjacentX, -AdjacentY)
+% Calculate adjacent positions to a given position (X, Y) on the game board.
 adjacent(X, Y, AdjacentX, AdjacentY) :-
     AdjacentX is X - 1, AdjacentY is Y - 1;  % Top-left
     AdjacentX is X - 1, AdjacentY is Y;      % Top
@@ -178,7 +177,8 @@ adjacent(X, Y, AdjacentX, AdjacentY) :-
     AdjacentX is X + 1, AdjacentY is Y;      % Bottom
     AdjacentX is X + 1, AdjacentY is Y + 1.  % Bottom-right
 
-% Find adjacent pieces to a given position (X, Y) on the game board.
+% find_adjacent_pieces(+GameState, +Player, +X, +Y, -AdjacentPieces)
+% Find adjacent pieces to a given position (X, Y) on the game board belonging to the specified player.
 find_adjacent_pieces(GameState, Player, X, Y, AdjacentPieces) :-
     findall([Piece-(AdjX,AdjY) ], (
         adjacent(X, Y, AdjX, AdjY),
@@ -187,20 +187,8 @@ find_adjacent_pieces(GameState, Player, X, Y, AdjacentPieces) :-
         ((Player = black, Piece = black(_));(Player = red, Piece = red(_)))
     ), AdjacentPieces).
 
-write_attack_combinateds(GameState, Val, []).
-write_attack_combinateds(GameState,Val,[Option - [Fpiece-Coord | Rest1]| Rest] ) :-
-    length(Rest1,Len),
-    piece_value(Fpiece,Value),
-    write(Fpiece),nl,
-    write(Rest1), nl,
-    write(Val),
-    write(Value), nl,
-    (
-        ((Len > 0), piece_value(Fpiece2,Value2), write(Value2),nl); true
-    ),
-    write_attack_combinateds(GameState,Val, Rest).
-
-% Initialize the accumulator as an empty list
+% read_position(+FriendlyOptionsCleaned, +SelectedPosition, -OtherPieces)
+% Initialize the accumulator as an empty list and accumulate sublists that include SelectedPosition.
 read_position(FriendlyOptionsCleaned, SelectedPosition, OtherPieces) :-
     read_position(FriendlyOptionsCleaned, SelectedPosition, [], OtherPieces).
 
@@ -208,7 +196,8 @@ read_position(FriendlyOptionsCleaned, SelectedPosition, OtherPieces) :-
 read_position([], _, Accumulator, OtherPieces) :-
     OtherPieces = Accumulator.
 
-% Check the current list for SelectedPosition, if found, append it as a sublist to the accumulator.
+% read_position(+FriendlyOptionsCleaned, +SelectedPosition, +Accumulator, -Result)
+% Check the current list for SelectedPosition, and if found, append it as a sublist to the accumulator.
 read_position([FriendlyOptionsCleaned | RestFriendlyOptionsCleaned], SelectedPosition, Accumulator, OtherPieces) :-
     (member(SelectedPosition, FriendlyOptionsCleaned) ->
         append(Accumulator, [FriendlyOptionsCleaned], NewAccumulator)
@@ -219,33 +208,13 @@ read_position([FriendlyOptionsCleaned | RestFriendlyOptionsCleaned], SelectedPos
     read_position(RestFriendlyOptionsCleaned, SelectedPosition, NewAccumulator, OtherPieces).
 
 
-
-
-% Separate pieces into SameListPieces and DifferentListPieces
-separate_pieces_by_list(SelectedPosition, FriendlyOptions, SameListPieces, DifferentListPieces) :-
-    find_pieces_in_same_list(SelectedPosition, FriendlyOptions, SameListPieces),
-    find_pieces_in_different_lists(SelectedPosition, FriendlyOptions, DifferentListPieces).
-
-% Find pieces in the same list as SelectedPosition
-find_pieces_in_same_list(_, [], []).
-find_pieces_in_same_list(SelectedPosition, [List | Rest], SameListPieces) :-
-    (member(SelectedPosition, List) ->
-        SameListPieces = List
-    ; find_pieces_in_same_list(SelectedPosition, Rest, SameListPieces)
-    ).
-
-% Find pieces in different lists from SelectedPosition
-find_pieces_in_different_lists(_, [], []).
-find_pieces_in_different_lists(SelectedPosition, [List | Rest], DifferentListPieces) :-
-    (member(SelectedPosition, List) ->
-        find_pieces_in_different_lists(SelectedPosition, Rest, DifferentListPieces)
-    ; append(List, RestDifferentListPieces, DifferentListPieces),
-      find_pieces_in_different_lists(SelectedPosition, Rest, RestDifferentListPieces)
-    ).
-
+% max_list_length(+Lists, -MaxLength)
+% Calculate the maximum length among lists within a list.
 max_list_length(Lists, MaxLength) :-
     max_list_length(Lists, 0, MaxLength).
 
+% max_list_length(+Lists, +CurrentMaxLength, -MaxLength)
+% Calculate the maximum length among lists within a list, recursively.
 max_list_length([], MaxLength, MaxLength).
 max_list_length([L|Rest], CurrentMaxLength, MaxLength) :-
     length(L, Length),

@@ -8,25 +8,33 @@ initial_state([
     [red(2), red(2), red(2), red(2), red(2)],
     [empty, empty, empty, empty, empty],
     [empty, empty, empty, empty, empty],
-    [empty, empty, red(1), empty, empty],
-    [empty, black(1), empty, black(1), empty],
+    [empty, black(1), red(1), empty, empty],
+    [empty, black(1), empty, black(1), black(1)],
     [empty, empty, empty, empty, empty],
     [black(2), black(1), black(2), black(2), black(2)]
 ]).
 
-% Define a predicate to display the game board.
+% display_game(+Board)
+% Display the game board on the console, including piece positions and a movement restriction tip in the right side.
 display_game(Board) :-
     nl,
     display_columns,
     display_rows(Board, 1),
     display_separator.
 
+% display_columns/0
+% Display the column labels on the console.
 display_columns :-
     write('     a    b    c    d    e\n').
 
+% display_separator/0
+% Display a separator line on the console.
 display_separator :-
     write('  --------------------------\n').
 
+
+% display_rows(+Board, +RowNumber)
+% Display the rows of the game board, including piece positions and a movement restriction tip in the right side.
 display_rows([], 8).
 display_rows([Row | Rest], RowNumber) :-
     display_separator,
@@ -42,6 +50,9 @@ display_rows([Row | Rest], RowNumber) :-
     NextRowNumber is RowNumber + 1,
     display_rows(Rest, NextRowNumber).
 
+
+% display_row(+Row)
+% Display a single row of the game board.
 display_row([]) :- 
     write('|').
 display_row([Cell | Rest]) :-
@@ -49,6 +60,8 @@ display_row([Cell | Rest]) :-
     display_cell(Cell),
     display_row(Rest).
 
+% display_cell(+Cell)
+% Display the content of an individual cell.
 display_cell(empty) :-
     write('   ').
 display_cell(red(N)) :-
@@ -56,10 +69,13 @@ display_cell(red(N)) :-
 display_cell(black(N)) :-
     format('B~d ', [N]).
 
+% calculate_possible(+Val, -Possible)
+% Calculates the maximum number of spaces a piece with the given value can move within the game rules.
 calculate_possible(Val, Possible) :-
     Possible is 4 - Val.
 
-% Choose move for a human player (select piece and destination)
+% choose_move(+GameState, +Player, -Move, -TwoMovesGamestate)
+% Allows a human player to choose between two move options: moving a single stack or moving two individual pieces up to 2 spaces each.
 choose_move(GameState, Player, Move, TwoMovesGamestate) :-
     repeat,
     write('Choose one of the turn possibilities:') ,nl,
@@ -70,18 +86,20 @@ choose_move(GameState, Player, Move, TwoMovesGamestate) :-
         (Input =:= 1 -> single_move(GameState, Player, Move, TwoMovesGamestate)
         ; Input =:= 2 -> double_move(GameState, Player, Move, TwoMovesGamestate)
         ;
-          fail % Failing here causes repeat to try again
+          fail
         )
     ; 
-      fail % Failing here causes repeat to try again
+      fail
     )
     .
 
+% single_move(+GameState, +Player, -Move, -TwoMovesGamestate)
+% Allows a player to make a single move, moving a piece or a stack of pieces up to a certain distance on the game board.
 single_move(GameState,Player, Move, TwoMovesGamestate) :-
     repeat,
     write('Select a piece or stack (e.g., a1): '),
     read(FromInput),
-
+    %i
     (integer(FromInput) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
 
     (user_input_to_coordinates(FromInput, (FromRow, FromCol)) -> true ; write('Invalid input format. Please use the format "a1" or similar.'), nl,
@@ -89,12 +107,13 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
 
     nth1(FromRow, GameState, Row),
     nth1(FromCol, Row, Piece),
-
+    %ii
     ( (Player = black, Piece = black(_)) ;
       (Player = red, Piece = red(_)) ),
 
     piece_value(Piece, Val),
 
+    %iii
     (((FromRow =\= 1, Player = black);
      (FromRow =\= 7, Player = red) -> true);
      (write('That is not allowed.'), nl, fail)          % NAO FAZ SENTIDO SEU FILHO DA PUTA
@@ -105,17 +124,23 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
 
     % ATAUQE COMBINADO GOES HERE
 
+    %iv
     (integer(ToInput) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
 
     (user_input_to_coordinates(ToInput, (ToRow, ToCol)) -> true ; write('Invalid input format. Please use the format "a1" or similar.'), nl,
         fail),
 
+    %v
+
     (((Val > 1) -> write('How many pieces do you want (e.g., 1, 2, 3, 4): '), read(NPiecesInput)); NPiecesInput = 1),
 
+    %vi
     (\+integer(NPiecesInput) -> write('Invalid input format.'), nl, fail ; true),
 
+    %vii
     (NPiecesInput =< Val),
 
+    %viii
     calculate_possible(NPiecesInput, Possible),
     (abs(FromRow - ToRow) =< Possible, abs(FromCol - ToCol) =< Possible),
 
@@ -123,16 +148,25 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     nth1(ToCol, RowEnemy, PieceEnemy),
     piece_value(PieceEnemy, ValEnemy),
 
+
+    %ix
     find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player),
     (Paths \= []),
+
+    %x
     find_adjacent_pieces(GameState,Player,ToRow,ToCol,AdjacentPieces),
-    (((Player = black, PieceEnemy = red(_), AdjacentPieces \= [[Piece-(FromRow,FromCol)]], AdjacentPieces \= []) ; (Player = red, PieceEnemy = black(_), AdjacentPieces \= [[Piece-(FromRow,FromCol)]], AdjacentPieces \= [])) -> is_possible_combinateds(GameState, Player,NPiecesInput, NewVal,AdjacentPieces, FromRow, FromCol, ToRow, ToCol, Paths, GameStateCombinated)
+    (((Player = black, PieceEnemy = red(_), AdjacentPieces \= [[Piece-(FromRow,FromCol)]], AdjacentPieces \= []) ; 
+    (Player = red, PieceEnemy = black(_), AdjacentPieces \= [[Piece-(FromRow,FromCol)]], AdjacentPieces \= [])) -> 
+    is_possible_combinateds(GameState, Player,NPiecesInput, NewVal,AdjacentPieces, FromRow, FromCol, ToRow, ToCol, Paths, GameStateCombinated)
      ;
     true ),
+
     (
         (integer(NewVal), Yoo is NewVal, TwoMovesGamestate = GameStateCombinated);
         (Yoo is NPiecesInput, TwoMovesGamestate = GameState)
     ),
+
+    %xi
     ( (Player = black, PieceEnemy = black(_), (Yoo+ValEnemy) =< 4,    
         NewValue is Yoo + ValEnemy,
         NewValue2 is Val-NPiecesInput,
@@ -163,6 +197,9 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     To = (ToRow, ToCol),
     Move = (From, To, PieceFrom, PieceTo)
     .
+
+% double_move(+GameState, +Player, -Move2, -TwoMovesGamestate)
+% Allows a player to make a double move, moving two individual pieces up to 2 spaces each on the game board.
 double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     repeat,
     write('Select the first piece (e.g., a1): '),
@@ -183,13 +220,11 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
 
     (((FromRow =\= 1, Player = black);
      (FromRow =\= 7, Player = red) -> true);
-     (write('That is not allowed.'), nl, fail)          % NAO FAZ SENTIDO SEU FILHO DA PUTA
+     (write('That is not allowed.'), nl, fail)
     ),
 
     write('Select a destination (e.g., b2): '),
     read(ToInput),      % Read the coordinate for the destination
-
-    % ATAUQE COMBINADO GOES HERE
 
     (integer(ToInput) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
 
@@ -317,13 +352,7 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     Move2 = (From2, To2, PieceFrom2, PieceTo2)
     .
 
-
-
-choose_move(GameState, computer-Level, Move):-
-    valid_moves(GameState, Moves),
-    choose_move(Level, GameState, Moves, Move).
-
-
+% user_input_to_coordinates(+UserInput, (-Row, -Col))
 % Define a predicate to convert a user input like "A2" to column and row coordinates.
 user_input_to_coordinates(UserInput, (Row, Col)) :-
     atom_chars(UserInput, [ColChar, RowDigit]),
@@ -331,19 +360,14 @@ user_input_to_coordinates(UserInput, (Row, Col)) :-
     Col is ColCode - 96, % Convert ASCII value to column number (A=1, B=2, ...)
     number_chars(Row, [RowDigit]).
 
-%MOVER A PUTA DAS PECAS
-
+% move(+GameState, +Move, -NewGameState)
 % Define a predicate to move a piece from one position to another.
 move(GameState, Move, NewGameState) :-
-    % Split the coordinates into separate components
+    % Split the move into separate components
     Move = (From, To, PieceFrom, PieceTo),
 
     From = (FromRow, FromCol),
     To = (ToRow, ToCol),
-
-    % Extract the piece from the source position
-    %nth1(FromRow, GameState, FromRowList),
-    %nth1(FromCol, FromRowList, PieceTo),
 
     nth1(ToRow, GameState, ToRowList),
     nth1(ToCol, ToRowList, EnemyPiece),
@@ -363,8 +387,6 @@ move(GameState, Move, NewGameState) :-
          retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
          remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
          repeat,
-         write('RetreatPositionsFixed'), nl,
-         write(RetreatPositionsFixed), nl,
          (
             (RetreatPositionsFixed \= [] -> (write('Choose a position to retreat the piece to: (  '),
          write_retreat(RetreatPositionsFixed),
@@ -389,8 +411,6 @@ move(GameState, Move, NewGameState) :-
          retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
          remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
          repeat,
-         write('RetreatPositionsFixed'), nl,
-         write(RetreatPositionsFixed), nl,
         (
             (RetreatPositionsFixed \= [] -> (write('Choose a position to retreat the piece to: (  '),
          write_retreat(RetreatPositionsFixed),
@@ -419,6 +439,8 @@ move(GameState, Move, NewGameState) :-
     replace(TempGameState, ToRow, ToCol, PieceTo, NewGameState).
 
 
+% replace(+Board, +Row, +Column, +Piece, -NewBoard)
+% Replaces an element at a specified row and column with a new piece in the board.
 replace(Board, Row, Column, Piece, NewBoard) :-
     replace_row(Board, Row, Column, Piece, NewBoard).
 
@@ -439,8 +461,8 @@ replace_element([X | Rest], Column, Piece, [X | NewRest]) :-
     NextColumn is Column - 1,
     replace_element(Rest, NextColumn, Piece, NewRest).
 
-% TESTE
-
+% piece_value(+Piece, -Value)
+% Retrieves the numeric value associated with a game piece.
 piece_value(red(N), N).
 piece_value(black(N), N).
 piece_value(empty, 0).
@@ -448,13 +470,16 @@ piece_value(empty, 0).
 
 %PATH
 
+% find_possible_paths(+GameState, +FromRow, +FromCol, +ToRow, +ToCol, +Possible, -Paths, +Player) :-
 % Predicate to find all possible paths from (FromRow, FromCol) to (ToRow, ToCol) within a given number of moves.
 find_possible_paths(GameState, FromRow, FromCol, ToRow, ToCol, Possible, Paths, Player) :-
     findall(Path, possible_path(GameState, FromRow, FromCol, ToRow, ToCol, Possible, [], Path, Player), Paths).
 
+%valid_position(+X, +Y)
 % Predicate to check if a position (X, Y) is valid and within the bounds of the game board.
 valid_position(X, Y) :- X >= 1, X =< 7, Y >= 1, Y =< 5.
 
+% next_position((+X, +Y), (-X1, -Y1))
 % Predicate to calculate the next position in a certain direction.
 next_position((X, Y), (X1, Y1)) :- X1 is X + 1, Y1 is Y.
 next_position((X, Y), (X1, Y1)) :- X1 is X - 1, Y1 is Y.
@@ -465,14 +490,13 @@ next_position((X, Y), (X1, Y1)) :- X1 is X+1, Y1 is Y + 1.
 next_position((X, Y), (X1, Y1)) :- X1 is X+1, Y1 is Y - 1.
 next_position((X, Y), (X1, Y1)) :- X1 is X-1, Y1 is Y + 1.
 
-
+% possible_path(+GameState, +X, +Y, +ToRow, +ToCol, +Possible, -CurrentPath, -Path, +Player)
 % Recursive predicate to find possible paths.
 possible_path(_, X, Y, X, Y, 0, Path, Path, Player):- !.
 possible_path(_, X, Y, X, Y, 1, Path, Path, Player):- !.
 possible_path(_, X, Y, X, Y, 2, Path, Path, Player):- !.
 possible_path(GameState, X, Y, ToRow, ToCol, Possible, CurrentPath, Path, Player) :-
     Possible > 0,
-    %repeat,
     next_position((X, Y), (X1, Y1)), % Get the next position
     valid_position(X1, Y1), % Check if it's a valid position
 
@@ -487,13 +511,15 @@ possible_path(GameState, X, Y, ToRow, ToCol, Possible, CurrentPath, Path, Player
     (
         Possible > 1 -> 
         ((nth1(Y1, Row, empty)) ; (X1 = ToRow, Y1 = ToCol))
-        ; nth1(Y1, Row, _) % se for o ultimo move o espaço nao tem que ser empty
+        ; nth1(Y1, Row, _) % if it's the last move it doesn't have to be empty (stacking terminates the move)
     ), % Check if it's an empty space
     NewPossible is Possible - 1,
     append(CurrentPath, [(X1, Y1)], NewPath),
     possible_path(GameState, X1, Y1, ToRow, ToCol, NewPossible, NewPath, Path, Player).
 
-% Retreat positions for the black player
+% retreat_positions(+Color, +ToRow, +ToCol, -RetreatPositions, +GameState, +NewValue)
+% Finds retreat positions for a piece of the black Color and calculates the retreat positions
+% based on its current position and value in the GameState.
 retreat_positions(black, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
     (
         ((ToRow =\= 1) -> RetreatRow is ToRow - 1,RetreatCol is ToCol);
@@ -531,7 +557,9 @@ retreat_positions(black, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
     append([RetreatPositions1, RetreatPositions2, RetreatPositions3], RetreatPositions).
 
 
-% Retreat positions for the black player
+% retreat_positions(+Color, +ToRow, +ToCol, -RetreatPositions, +GameState, +NewValue)
+% Finds retreat positions for a piece of the red Color and calculates the retreat positions
+% based on its current position and value in the GameState.
 retreat_positions(red, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
     (
         ((ToRow =\= 7) -> RetreatRow is ToRow + 1,RetreatCol is ToCol);
@@ -568,6 +596,9 @@ retreat_positions(red, ToRow, ToCol, RetreatPositions, GameState, NewValue) :-
     ), RetreatPositions3),
     append([RetreatPositions1, RetreatPositions2, RetreatPositions3], RetreatPositions).
 
+
+% write_retreat(+RetreatPositions)
+% Writes the available retreat positions to the user.
 write_retreat([]).
 
 write_retreat([[Row, Col] | Rest]):-
@@ -577,7 +608,8 @@ write_retreat([[Row, Col] | Rest]):-
     write(Row), write('  '),
     write_retreat(Rest), !.
 
-
+% remove_empty_lists(+InputLists, -ResultLists)
+% Removes empty lists from a list of lists.
 remove_empty_lists([], []).
 remove_empty_lists([[] | Rest], Result) :- 
     remove_empty_lists(Rest, Result).
@@ -585,7 +617,8 @@ remove_empty_lists([X | Rest], [X | Result]) :-
     X \= [],
     remove_empty_lists(Rest, Result).
 
-
+% check_diagonal(+GameState, +X, +Y, +OffsetX, +OffsetY, +color)
+% Checks if a black piece can make a valid diagonal move in the game.
 check_diagonal(GameState, X, Y, OffsetX, OffsetY, black):-
     NewX is X+OffsetX,
     NewY is Y+OffsetY,
@@ -595,6 +628,8 @@ check_diagonal(GameState, X, Y, OffsetX, OffsetY, black):-
     nth1(NewY, RowList2, Piece2),
     ((Piece1 = black(_) ; Piece1 = empty) ; (Piece2 = black(_) ; Piece2 = empty)).
 
+% check_diagonal(+GameState, +X, +Y, +OffsetX, +OffsetY, +color)
+% Checks if a red piece can make a valid diagonal move in the game.
 check_diagonal(GameState, X, Y, OffsetX, OffsetY, red):-
     NewX is X+OffsetX,
     NewY is Y+OffsetY,
@@ -604,3 +639,62 @@ check_diagonal(GameState, X, Y, OffsetX, OffsetY, red):-
     nth1(NewY, RowList2, Piece2),
     ((Piece1 = red(_) ; Piece1 = empty) ; (Piece2 = red(_) ; Piece2 = empty)).
 
+% sum_red_pieces(+Board, -Sum)
+% Calculate the total sum of red pieces values on the board.
+sum_red_pieces(Board, Sum) :-
+    sum_red_pieces(Board, 0, Sum).
+
+% Base case: when the board is empty, the sum is 0.
+sum_red_pieces([], Sum, Sum).
+
+% Recursive case: count the red pieces in each row and accumulate the sum.
+sum_red_pieces([Row | Rest], PartialSum, Sum) :-
+    count_red_pieces_in_row(Row, RowSum),
+    NewPartialSum is PartialSum + RowSum,
+    sum_red_pieces(Rest, NewPartialSum, Sum).
+
+
+% count_red_pieces_in_row(+Row, -RowSum)
+% Count the number of red pieces in a given row. This predicate recursively traverses the row,
+% accumulating the values of red pieces to calculate the total sum in RowSum.
+count_red_pieces_in_row([], 0).
+count_red_pieces_in_row([red(N) | Rest], RowSum) :-
+    count_red_pieces_in_row(Rest, RestSum),
+    RowSum is N + RestSum.
+count_red_pieces_in_row([_ | Rest], RowSum) :-
+    count_red_pieces_in_row(Rest, RowSum).
+
+% sum_red_pieces_on_row7(+Board, -Sum)
+% Predicate to calculate the sum of red pieces on row 7
+sum_red_pieces_on_row7(Board, Sum) :-
+    nth1(7, Board, Row7), % Get the 7th row
+    count_red_pieces_in_row(Row7, Sum).
+
+% sum_black_pieces(+Board, -Sum)
+% Calculate the total sum of black pieces values on the board.
+sum_black_pieces(Board, Sum) :-
+    sum_black_pieces(Board, 0, Sum).
+
+% Base case: when the board is empty, the sum is 0.
+sum_black_pieces([], Sum, Sum).
+
+% Recursive case: count the red pieces in each row and accumulate the sum.
+sum_black_pieces([Row | Rest], PartialSum, Sum) :-
+    count_black_pieces_in_row(Row, RowSum),
+    NewPartialSum is PartialSum + RowSum,
+    sum_black_pieces(Rest, NewPartialSum, Sum).
+
+% count_black_pieces_in_row(+Row, -RowSum)
+% Count the number of black pieces in a given row. This predicate recursively traverses the row,
+% accumulating the values of black pieces to calculate the total sum in RowSum.
+count_black_pieces_in_row([], 0).
+count_black_pieces_in_row([black(N) | Rest], RowSum) :-
+    count_black_pieces_in_row(Rest, RestSum),
+    RowSum is N + RestSum.
+count_black_pieces_in_row([_ | Rest], RowSum) :-
+    count_black_pieces_in_row(Rest, RowSum).
+
+% Predicate to calculate the sum of red pieces on row 7
+sum_black_pieces_on_row1(Board, Sum) :-
+    nth1(1, Board, Row1), % Get the 1st row
+    count_black_pieces_in_row(Row1, Sum).

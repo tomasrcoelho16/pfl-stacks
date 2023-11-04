@@ -1,73 +1,20 @@
-% Load the predicates from pieces.pl
 :- use_module(library(lists)).
 :- use_module(library(between)).
 :- consult(pieces).
 :- consult(ataqueCombinado).
-:- consult(botLevel1).
+:- consult(bots).
 :- use_module(library(random)).
 :- use_module(library(system), [now/1]).
 
-% Define the main predicate to start the game.
+% play
+% The main predicate to start the game. It displays the game menu, gets the user's menu option,
+% and handles the selected option to initiate gameplay.
 play :-
     display_menu,
     get_menu_option(Option),
     handle_menu_option(Option).
 
-% Predicate to calculate the sum of red pieces on the board
-sum_red_pieces(Board, Sum) :-
-    sum_red_pieces(Board, 0, Sum).
-
-% Base case: when the board is empty, the sum is 0.
-sum_red_pieces([], Sum, Sum).
-
-% Recursive case: count the red pieces in each row and accumulate the sum.
-sum_red_pieces([Row | Rest], PartialSum, Sum) :-
-    count_red_pieces_in_row(Row, RowSum),
-    NewPartialSum is PartialSum + RowSum,
-    sum_red_pieces(Rest, NewPartialSum, Sum).
-
-% Predicate to count the red pieces in a row
-count_red_pieces_in_row([], 0).
-count_red_pieces_in_row([red(N) | Rest], RowSum) :-
-    count_red_pieces_in_row(Rest, RestSum),
-    RowSum is N + RestSum.
-count_red_pieces_in_row([_ | Rest], RowSum) :-
-    count_red_pieces_in_row(Rest, RowSum).
-
-% Predicate to calculate the sum of red pieces on row 7
-sum_red_pieces_on_row7(Board, Sum) :-
-    nth1(7, Board, Row7), % Get the 7th row
-    count_red_pieces_in_row(Row7, Sum).
-
-%FOR THE BLACKS!
-
-% Predicate to calculate the sum of red pieces on the board
-sum_black_pieces(Board, Sum) :-
-    sum_black_pieces(Board, 0, Sum).
-
-% Base case: when the board is empty, the sum is 0.
-sum_black_pieces([], Sum, Sum).
-
-% Recursive case: count the red pieces in each row and accumulate the sum.
-sum_black_pieces([Row | Rest], PartialSum, Sum) :-
-    count_black_pieces_in_row(Row, RowSum),
-    NewPartialSum is PartialSum + RowSum,
-    sum_black_pieces(Rest, NewPartialSum, Sum).
-
-% Predicate to count the red pieces in a row
-count_black_pieces_in_row([], 0).
-count_black_pieces_in_row([black(N) | Rest], RowSum) :-
-    count_black_pieces_in_row(Rest, RestSum),
-    RowSum is N + RestSum.
-count_black_pieces_in_row([_ | Rest], RowSum) :-
-    count_black_pieces_in_row(Rest, RowSum).
-
-% Predicate to calculate the sum of red pieces on row 7
-sum_black_pieces_on_row1(Board, Sum) :-
-    nth1(1, Board, Row1), % Get the 1st row
-    count_black_pieces_in_row(Row1, Sum).
-
-
+% display_menu/0
 % Display the game menu.
 display_menu :-
     write('Welcome to Stacks!\n'),
@@ -76,10 +23,12 @@ display_menu :-
     write('3. Bot vs Bot\n'),
     write('Select an option (1/2/3): ').
 
+% get_menu_option(+Option)
 % Get the user's menu option.
 get_menu_option(Option) :-
     read(Option).
 
+% handle_menu_option(+Option)
 % Handle the selected menu option.
 handle_menu_option(1) :- % Human vs Human
     start_human_vs_human_game.
@@ -91,11 +40,13 @@ handle_menu_option(_) :- % Handle invalid input
     write('Invalid option. Please select a valid option.\n'),
     play.
 
+% start_human_vs_human_game/0
 % Define game modes as placeholders (you need to implement these).
 start_human_vs_human_game :-
     play_game.
 
-
+% start_human_vs_bot_game/0
+% Entry point for starting a game where a human player plays against a bot.
 start_human_vs_bot_game :-
     repeat,
     write('Difficulty to play against: '), nl,
@@ -107,6 +58,9 @@ start_human_vs_bot_game :-
         write('Invalid input.'), nl, fail
     ),
     play_game_hvb(Input).
+
+% start_bot_vs_bot_game/0
+% Entry point for starting a game where two bots play against each other.
 start_bot_vs_bot_game :-
     repeat,
     write('Difficulty: '), nl,
@@ -119,11 +73,15 @@ start_bot_vs_bot_game :-
     ),
     play_game_bot(Input).
 
+% play_game/0
+% Entry point for starting a human vs. human game.
 play_game:-
     initial_state(GameState),
     display_game(GameState),
     game_cycle(GameState-black).   
 
+% game_cycle/1
+% Main game loop that controls the flow of the game.
 game_cycle(GameState-Player):-
     game_over(GameState, Winner), !.
 
@@ -137,9 +95,13 @@ game_cycle(GameState-Player):-
     !,
     game_cycle(NewGameState-NextPlayer).
 
+% next_player/2
+% Predicate to determine the next player in the game.
 next_player(black, red).
 next_player(red, black).
 
+% game_over/2
+% Predicate to check if the game is over and determine the winner.
 game_over(GameState, Winner) :-
     sum_red_pieces(GameState, SumRedTotal), !,
     sum_black_pieces(GameState, SumBlackTotal), !,
@@ -156,11 +118,15 @@ game_over(GameState, Winner) :-
         write('Black Wins!'), nl
     ).
 
+% play_game_bot/1
+% Initializes and starts a game between two bots with a specified level of play.
 play_game_bot(Level):-
     initial_state(GameState),
     display_game(GameState),
     game_cycle_bot(GameState-black,Level).   
 
+% game_cycle_bot/2
+% Main game loop for a game between two bots.
 game_cycle_bot(GameState-Player, _Level):-
     game_over(GameState, Winner), !.
 
@@ -173,11 +139,15 @@ game_cycle_bot(GameState-Player, Level):-
     display_game(NewGameState),
     game_cycle_bot(NewGameState-NextPlayer, Level).
 
+% play_game_hvb/1
+% Initializes and starts a game between a human player and a bot with a specified level of play.
 play_game_hvb(Level):-
     initial_state(GameState),
     display_game(GameState),
     game_cycle_hvb(GameState-black,Level).   
 
+% game_cycle_hvb/2
+% Main game loop for a game between a human player and a bot.
 game_cycle_hvb(GameState-Player,Level):-
     game_over(GameState, Winner), !.
 
