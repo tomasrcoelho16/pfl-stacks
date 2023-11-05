@@ -5,13 +5,13 @@
 % Example: red(2) represents a stack of 2 red pieces.
 % empty represents an empty cell.
 initial_state([
-    [red(2), red(2), red(2), red(2), red(2)],
+    [empty, red(1), empty, black(1), red(1)],
+    [empty, black(1), black(1), empty, red(2)],
     [empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty],
-    [empty, black(1), red(1), empty, empty],
-    [empty, black(1), empty, black(1), black(1)],
-    [empty, empty, empty, empty, empty],
-    [black(2), black(1), black(2), black(2), black(2)]
+    [empty, empty, empty, red(1), black(1)],
+    [empty, empty, empty, empty, black(2)],
+    [black(1), empty, empty, empty, red(1)],
+    [black(2), red(2), red(1), red(1), empty]
 ]).
 
 % display_game(+Board)
@@ -116,13 +116,11 @@ single_move(GameState,Player, Move, TwoMovesGamestate) :-
     %iii
     (((FromRow =\= 1, Player = black);
      (FromRow =\= 7, Player = red) -> true);
-     (write('That is not allowed.'), nl, fail)          % NAO FAZ SENTIDO SEU FILHO DA PUTA
+     (write('That is not allowed.'), nl, fail)
     ),
 
     write('Select a destination (e.g., b2): '),
-    read(ToInput),      % Read the coordinate for the destination
-
-    % ATAUQE COMBINADO GOES HERE
+    read(ToInput), 
 
     %iv
     (integer(ToInput) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
@@ -224,7 +222,7 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     ),
 
     write('Select a destination (e.g., b2): '),
-    read(ToInput),      % Read the coordinate for the destination
+    read(ToInput),
 
     (integer(ToInput) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
 
@@ -298,7 +296,7 @@ double_move(GameState, Player, Move2, TwoMovesGamestate) :-
     ),
 
     write('Select a destination (e.g., b2): '),
-    read(ToInput2),      % Read the coordinate for the destination
+    read(ToInput2),
 
     (integer(ToInput2) -> write('Invalid input format. Please use the format "a1" or similar.'), nl, fail ; true),
 

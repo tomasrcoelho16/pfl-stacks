@@ -104,7 +104,7 @@ save_coordinates([], [], _, _).
 save_coordinates([Path|Rest], Coordinates, FromRow, FromCol) :-
     (length(Path, 1) ->  % If the length of the path is 1
         Coordinates = [(FromRow, FromCol)|RestCoordinates] % Save the original position
-    ; % Otherwise, the length is not 1
+    ;
         length(Path, Len),
         LenMinus2 is Len - 2,
         nth0(LenMinus2, Path, PenultimateCoord),  % Save the penultimate coordinate
