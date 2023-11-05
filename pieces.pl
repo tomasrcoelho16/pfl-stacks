@@ -5,13 +5,13 @@
 % Example: red(2) represents a stack of 2 red pieces.
 % empty represents an empty cell.
 initial_state([
-    [empty, red(1), empty, black(1), red(1)],
-    [empty, black(1), black(1), empty, red(2)],
+    [red(2), red(2), red(2), red(2), red(2)],
     [empty, empty, empty, empty, empty],
-    [empty, empty, empty, red(1), black(1)],
-    [empty, empty, empty, empty, black(2)],
-    [black(1), empty, empty, empty, red(1)],
-    [black(2), red(2), red(1), red(1), empty]
+    [empty, empty, empty, empty, empty],
+    [empty, empty, empty, empty, empty],
+    [empty, empty, empty, empty, empty],
+    [empty, empty, empty, empty, empty],
+    [black(2), black(2), black(2), black(2), black(2)]
 ]).
 
 % display_game(+Board)

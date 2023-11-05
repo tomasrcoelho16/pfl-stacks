@@ -157,13 +157,11 @@ game_cycle_hvb(GameState-Player,Level):-
     (
     (Player = black , choose_move(GameState, Player, Move, TwoMovesGamestate),
         move(TwoMovesGamestate, Move, NewGameState),
-        next_player(Player, NextPlayer),
-        write('next:'), write(NextPlayer), nl
+        next_player(Player, NextPlayer)
     );
-    (Player = red , write('TOU AQUI'), choose_move_bot(GameState, Player, 1, Move),
+    (Player = red, choose_move_bot(GameState, Player, 1, Move),
         move_bot(GameState, Move, NewGameState),
-        next_player(Player, NextPlayer),
-        write('next:'), write(NextPlayer), nl
+        next_player(Player, NextPlayer)
     )
     ),
     display_game(NewGameState),

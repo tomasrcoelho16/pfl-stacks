@@ -97,12 +97,12 @@ move_bot(GameState, Move, NewGameState) :-
     NewValue is (EnemyPieceValue - (PieceToValue - EnemyPieceValue)),
 
     retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
-    remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
+    remove_empty_lists(RetreatPositions, RetreatPositionsFixed),
     (
         ((PieceTo = red(_),
          EnemyPiece = black(_), NewValue > 0) ->
          retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
-         remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
+         remove_empty_lists(RetreatPositions, RetreatPositionsFixed),
          (
             (RetreatPositionsFixed \= [] -> (
         random_member(Element, RetreatPositionsFixed),
@@ -120,7 +120,7 @@ move_bot(GameState, Move, NewGameState) :-
         ((PieceTo = black(_),
          EnemyPiece = red(_), NewValue > 0) ->
          retreat_positions(Player, ToRow, ToCol, RetreatPositions, GameState, NewValue),
-         remove_empty_lists(RetreatPositions, RetreatPositionsFixed), nl,
+         remove_empty_lists(RetreatPositions, RetreatPositionsFixed),
         (
             (RetreatPositionsFixed \= [] -> (
          random_member(Element, RetreatPositionsFixed),
@@ -165,8 +165,8 @@ evaluate_board(GameState, NewState, Player, Value):-
         PointsVic is 0
     ),
     (
-        (Player = black, (SumRedTotal =\= SumRed), Extra is -50, write('yayyyyyyyyyyyyyyyyyyyy'));
-        (Player = red, (SumBlackTotal =\= SumBlack), Extra is -50, write('yooooooooooooooooooooo'));
+        (Player = black, (SumRedTotal =\= SumRed), Extra is -50);
+        (Player = red, (SumBlackTotal =\= SumBlack), Extra is -50);
         Extra is 0
     ),
     (
