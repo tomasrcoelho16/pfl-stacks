@@ -63,7 +63,7 @@ start_human_vs_bot_game :-
 % Entry point for starting a game where two bots play against each other.
 start_bot_vs_bot_game :-
     repeat,
-    write('Choose the first AI difficulty: '), nl,
+    write('Choose the black AI difficulty: '), nl,
     write('1 - Random Moves'), nl,
     write('2 - Greedy Moves'), nl,
     read(First),
@@ -71,7 +71,7 @@ start_bot_vs_bot_game :-
         (First == 1; First == 2);
         write('Invalid input.'), nl, fail
     ),
-    write('Choose the second AI difficulty: '), nl,
+    write('Choose the red AI difficulty: '), nl,
     write('1 - Random Moves'), nl,
     write('2 - Greedy Moves'), nl,
     read(Second),
