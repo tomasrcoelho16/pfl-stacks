@@ -63,14 +63,23 @@ start_human_vs_bot_game :-
 % Entry point for starting a game where two bots play against each other.
 start_bot_vs_bot_game :-
     repeat,
-    write('Difficulty: '), nl,
+    write('Choose the first AI difficulty: '), nl,
     write('1 - Random Moves'), nl,
     write('2 - Greedy Moves'), nl,
-    read(Input),
+    read(First),
     (
-        (Input == 1; Input == 2);
+        (First == 1; First == 2);
         write('Invalid input.'), nl, fail
     ),
+    write('Choose the second AI difficulty: '), nl,
+    write('1 - Random Moves'), nl,
+    write('2 - Greedy Moves'), nl,
+    read(Second),
+    (
+        (Second == 1; Second == 2);
+        write('Invalid input.'), nl, fail
+    ),
+    Input = (First, Second),
     play_game_bot(Input).
 
 % play_game/0
@@ -120,24 +129,29 @@ game_over(GameState, Winner) :-
 
 % play_game_bot/1
 % Initializes and starts a game between two bots with a specified level of play.
-play_game_bot(Level):-
+play_game_bot(Input):-
     initial_state(GameState),
     display_game(GameState),
-    game_cycle_bot(GameState-black,Level).   
+    game_cycle_bot(GameState-black,Input).   
 
 % game_cycle_bot/2
 % Main game loop for a game between two bots.
-game_cycle_bot(GameState-Player, _Level):-
+game_cycle_bot(GameState-Player, Input):-
     game_over(GameState, Winner), !.
 
-game_cycle_bot(GameState-Player, Level):-
+game_cycle_bot(GameState-Player, Input):-
+    Input = (First, Second),
+    (
+        (Player = black, Level is First);
+        (Player = red, Level is Second)
+    ),
     write('CURRENT PLAYER:'),
     write(Player), nl,
     choose_move_bot(GameState, Player, Level, Move),
     move_bot(GameState, Move, NewGameState),
     next_player(Player, NextPlayer),
     display_game(NewGameState),
-    game_cycle_bot(NewGameState-NextPlayer, Level).
+    game_cycle_bot(NewGameState-NextPlayer, Input).
 
 % play_game_hvb/1
 % Initializes and starts a game between a human player and a bot with a specified level of play.
